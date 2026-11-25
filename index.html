@@ -16,85 +16,68 @@
 
   <style>
     /* =========================================================================
-       1. DESIGN TOKENS & BASE RESET (100% SELF-CONTAINED, ZERO EXTERNAL CDNs)
+       1. DESIGN TOKENS, RESET & SYSTEM TYPOGRAPHY
        ========================================================================= */
     :root {
-      --bg-page: #f8fafc;
+      --bg-page: #f1f5f9;
       --bg-card: #ffffff;
-      --bg-subtle: #f1f5f9;
-      --bg-header: #0f172a;
+      --bg-subtle: #f8fafc;
+      --bg-header: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
       --text-main: #0f172a;
-      --text-secondary: #334155;
+      --text-secondary: #475569;
       --text-muted: #64748b;
-      --border-light: #e2e8f0;
-      --border-med: #cbd5e1;
-
-      --royal: #1e40af;
+      --royal: #1d4ed8;
       --royal-bright: #2563eb;
-      --royal-hover: #1d4ed8;
       --royal-soft: #eff6ff;
       --royal-border: #bfdbfe;
-
-      --emerald: #059669;
+      --emerald: #047857;
+      --emerald-bright: #059669;
       --emerald-soft: #ecfdf5;
       --emerald-border: #a7f3d0;
-
       --amber: #b45309;
       --amber-soft: #fffbeb;
       --amber-border: #fde68a;
-
-      --rose: #dc2626;
-      --rose-soft: #fef2f2;
-      --rose-border: #fecaca;
-
-      --radius-sm: 10px;
-      --radius-md: 14px;
-      --radius-lg: 18px;
-      --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.05);
-      --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08);
-      --shadow-lg: 0 18px 40px rgba(15, 23, 42, 0.22);
+      --rose: #be123c;
+      --rose-bright: #e11d48;
+      --rose-soft: #fff1f2;
+      --rose-border: #fecdd3;
+      --border-light: #e2e8f0;
+      --border-med: #cbd5e1;
+      --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+      --shadow-md: 0 4px 14px rgba(15, 23, 42, 0.08);
+      --shadow-lg: 0 14px 34px rgba(15, 23, 42, 0.16);
     }
 
     *, *::before, *::after {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      -webkit-tap-highlight-color: transparent;
     }
 
     html, body {
-      min-height: 100%;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background-color: var(--bg-page);
+      width: 100%;
+      min-height: 100dvh;
+      overflow-x: hidden;
+      background: var(--bg-page);
       color: var(--text-main);
-      font-size: 15px;
-      line-height: 1.48;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.45;
       -webkit-font-smoothing: antialiased;
-      overscroll-behavior-y: none;
-    }
-
-    button, .top-header, .staff-nav-wrap {
-      -webkit-user-select: none;
-      user-select: none;
-    }
-
-    button, input, select, textarea {
-      font-family: inherit;
-      font-size: inherit;
     }
 
     button {
+      font-family: inherit;
       cursor: pointer;
       border: none;
       background: none;
     }
 
-    #print-area {
-      display: none;
+    input, select, textarea {
+      font-family: inherit;
     }
 
     /* =========================================================================
-       2. APP SHELL & RESPONSIVE CONTAINER
+       2. LAYOUT CONTAINERS
        ========================================================================= */
     .app-root {
       min-height: 100dvh;
@@ -106,18 +89,22 @@
       width: 100%;
       max-width: 960px;
       margin: 0 auto;
-      padding-left: 16px;
-      padding-right: 16px;
+      padding-left: 14px;
+      padding-right: 14px;
     }
 
     .main-area {
       flex: 1;
-      padding-top: 18px;
-      padding-bottom: calc(36px + env(safe-area-inset-bottom));
+      padding-top: 16px;
+      padding-bottom: 44px;
+    }
+
+    #print-area {
+      display: none;
     }
 
     /* =========================================================================
-       3. TOP HEADER
+       3. TOP HEADER (RESPONSIVE 2-ROW MOBILE / 1-ROW DESKTOP, ZERO OVERLAP)
        ========================================================================= */
     .top-header {
       position: sticky;
@@ -127,28 +114,31 @@
       color: #ffffff;
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       padding-top: env(safe-area-inset-top);
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.16);
     }
 
     .header-inner {
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
-      padding-top: 12px;
-      padding-bottom: 12px;
+      gap: 10px 8px;
+      padding-top: 10px;
+      padding-bottom: 10px;
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 9px;
       min-width: 0;
+      flex: 1 1 auto;
     }
 
     .brand-logo {
-      width: 38px;
-      height: 38px;
-      border-radius: 11px;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
       background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
       display: flex;
       align-items: center;
@@ -159,18 +149,18 @@
     }
 
     .brand-title {
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 800;
       letter-spacing: -0.02em;
       line-height: 1.15;
       display: flex;
       align-items: center;
-      gap: 7px;
-      flex-wrap: wrap;
+      gap: 6px;
+      flex-wrap: nowrap;
     }
 
     .offline-chip {
-      font-size: 10.5px;
+      font-size: 10px;
       font-weight: 800;
       background: rgba(16, 185, 129, 0.18);
       color: #6ee7b7;
@@ -182,18 +172,41 @@
     }
 
     .brand-sub {
-      font-size: 11.5px;
+      font-size: 11px;
       color: #94a3b8;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      margin-top: 1px;
+    }
+
+    .header-lang-slot {
+      flex-shrink: 0;
     }
 
     .header-actions {
-      display: flex;
+      display: grid;
+      grid-template-columns: auto 1fr;
       align-items: center;
       gap: 8px;
-      flex-shrink: 0;
+      width: 100%;
+    }
+
+    @media (min-width: 720px) {
+      .header-inner {
+        flex-wrap: nowrap;
+        padding-top: 12px;
+        padding-bottom: 12px;
+      }
+      .header-lang-slot {
+        order: 2;
+      }
+      .header-actions {
+        order: 3;
+        display: flex;
+        width: auto;
+        flex-shrink: 0;
+      }
     }
 
     .lang-toggle {
@@ -201,7 +214,7 @@
       background: rgba(255, 255, 255, 0.1);
       padding: 3px;
       border-radius: 10px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.12);
     }
 
     .lang-btn {
@@ -221,7 +234,9 @@
     .staff-entry-btn {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 6px;
+      width: 100%;
       padding: 8px 12px;
       border-radius: 10px;
       background: rgba(37, 99, 235, 0.28);
@@ -240,8 +255,9 @@
     .install-app-btn {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 5px;
-      padding: 7px 10px;
+      padding: 8px 11px;
       border-radius: 10px;
       background: rgba(16, 185, 129, 0.2);
       border: 1px solid rgba(52, 211, 153, 0.45);
@@ -257,68 +273,77 @@
     }
 
     /* =========================================================================
-       4. STAFF NAVIGATION BAR
+       4. STAFF NAVIGATION BAR (DOCKED INSIDE STICKY HEADER — ZERO COLLISION)
        ========================================================================= */
     .staff-nav-wrap {
       background: #ffffff;
-      border-bottom: 1px solid var(--border-light);
-      position: sticky;
-      top: 62px;
-      z-index: 30;
-      box-shadow: var(--shadow-sm);
+      color: var(--text-main);
+      border-top: 1px solid var(--border-light);
     }
 
     .staff-nav {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 6px;
-      padding: 8px 0;
+      gap: 4px;
+      padding: 7px 0;
     }
 
     .staff-tab-btn {
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      padding: 9px 8px;
-      border-radius: 11px;
-      font-size: 12.5px;
+      gap: 3px;
+      padding: 7px 4px;
+      border-radius: 10px;
+      font-size: 11px;
       font-weight: 700;
       color: var(--text-secondary);
       background: transparent;
       transition: all 0.15s ease;
-      white-space: nowrap;
+      text-align: center;
+      line-height: 1.15;
+    }
+
+    @media (min-width: 640px) {
+      .staff-tab-btn {
+        flex-direction: row;
+        gap: 6px;
+        padding: 9px 10px;
+        font-size: 12.5px;
+      }
     }
 
     .staff-tab-btn:hover {
-      background: var(--bg-subtle);
+      background: #f1f5f9;
       color: var(--text-main);
     }
 
     .staff-tab-btn.active {
-      background: var(--royal);
-      color: #ffffff;
-      box-shadow: 0 3px 10px rgba(30, 64, 175, 0.22);
+      background: var(--royal-soft);
+      color: var(--royal);
+      box-shadow: inset 0 0 0 1px var(--royal-border);
     }
 
     .tab-counter {
-      background: var(--rose);
+      background: var(--rose-bright);
       color: #ffffff;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 800;
-      padding: 1px 6px;
+      padding: 1px 5px;
       border-radius: 999px;
+      line-height: 1.3;
     }
 
     /* =========================================================================
-       5. CARDS, BUTTONS, BADGES & FORMS
+       5. CARDS, BUTTONS, BADGES, INPUTS & CASCADE FILTER PILLS
        ========================================================================= */
     .card {
       background: var(--bg-card);
       border: 1px solid var(--border-light);
-      border-radius: var(--radius-lg);
-      padding: 18px;
-      margin-bottom: 16px;
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 14px;
       box-shadow: var(--shadow-sm);
     }
 
@@ -326,95 +351,14 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 14px;
+      gap: 10px;
+      margin-bottom: 12px;
     }
 
     .section-title {
-      font-size: 16px;
+      font-size: 15.5px;
       font-weight: 800;
       color: var(--text-main);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 7px;
-      padding: 10px 15px;
-      border-radius: 12px;
-      font-size: 13.5px;
-      font-weight: 700;
-      transition: all 0.15s ease;
-      text-align: center;
-    }
-
-    .btn:active {
-      transform: scale(0.98);
-    }
-
-    .btn-sm {
-      padding: 7px 11px;
-      font-size: 12.5px;
-      border-radius: 10px;
-    }
-
-    .btn-block {
-      width: 100%;
-    }
-
-    .btn-primary {
-      background: var(--royal-bright);
-      color: #ffffff;
-      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
-    }
-
-    .btn-primary:hover {
-      background: var(--royal-hover);
-    }
-
-    .btn-dark {
-      background: #0f172a;
-      color: #ffffff;
-    }
-
-    .btn-dark:hover {
-      background: #1e293b;
-    }
-
-    .btn-emerald {
-      background: var(--emerald);
-      color: #ffffff;
-      box-shadow: 0 4px 12px rgba(5, 150, 105, 0.22);
-    }
-
-    .btn-emerald:hover {
-      background: #047857;
-    }
-
-    .btn-danger {
-      background: var(--rose);
-      color: #ffffff;
-      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.22);
-    }
-
-    .btn-danger:hover {
-      background: #b91c1c;
-    }
-
-    .btn-outline {
-      background: #ffffff;
-      color: var(--text-main);
-      border: 1.5px solid var(--border-med);
-    }
-
-    .btn-outline:hover {
-      border-color: var(--royal-bright);
-      color: var(--royal);
-      background: var(--royal-soft);
     }
 
     .badge {
@@ -423,7 +367,7 @@
       gap: 5px;
       padding: 4px 10px;
       border-radius: 999px;
-      font-size: 12px;
+      font-size: 12.5px;
       font-weight: 800;
       white-space: nowrap;
     }
@@ -446,14 +390,87 @@
       border: 1px solid var(--rose-border);
     }
 
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 11px 16px;
+      border-radius: 12px;
+      font-size: 13.5px;
+      font-weight: 800;
+      transition: all 0.15s ease;
+      text-decoration: none;
+    }
+
+    .btn-sm {
+      padding: 7px 12px;
+      border-radius: 10px;
+      font-size: 12.5px;
+    }
+
+    .btn-block {
+      width: 100%;
+    }
+
+    .btn-primary {
+      background: var(--royal-bright);
+      color: #ffffff;
+      box-shadow: 0 3px 10px rgba(37, 99, 235, 0.25);
+    }
+
+    .btn-primary:hover {
+      background: var(--royal);
+    }
+
+    .btn-emerald {
+      background: var(--emerald-bright);
+      color: #ffffff;
+      box-shadow: 0 3px 10px rgba(5, 150, 105, 0.25);
+    }
+
+    .btn-emerald:hover {
+      background: var(--emerald);
+    }
+
+    .btn-danger {
+      background: var(--rose-bright);
+      color: #ffffff;
+      box-shadow: 0 3px 10px rgba(225, 29, 72, 0.25);
+    }
+
+    .btn-danger:hover {
+      background: var(--rose);
+    }
+
+    .btn-dark {
+      background: #0f172a;
+      color: #ffffff;
+    }
+
+    .btn-dark:hover {
+      background: #1e293b;
+    }
+
+    .btn-outline {
+      background: #ffffff;
+      color: var(--text-main);
+      border: 1.5px solid var(--border-med);
+    }
+
+    .btn-outline:hover {
+      background: #f8fafc;
+      border-color: var(--text-secondary);
+    }
+
     .form-group {
       margin-bottom: 12px;
     }
 
     .form-label {
       display: block;
-      font-size: 12.5px;
-      font-weight: 700;
+      font-size: 12px;
+      font-weight: 800;
       color: var(--text-secondary);
       margin-bottom: 5px;
     }
@@ -465,45 +482,24 @@
       border: 1.5px solid var(--border-med);
       background: #ffffff;
       color: var(--text-main);
-      font-size: 14px;
+      font-size: 13.5px;
       transition: border-color 0.15s ease;
     }
 
     .form-control:focus {
       outline: none;
       border-color: var(--royal-bright);
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
-    }
-
-    /* =========================================================================
-       6. PWA INSTALL MODAL CARDS & FILTER PILLS
-       ========================================================================= */
-    .pwa-step-card {
-      background: #f8fafc;
-      border: 1.5px solid var(--border-light);
-      border-radius: 14px;
-      padding: 13px 14px;
-      margin-bottom: 10px;
-    }
-
-    .pwa-step-title {
-      font-size: 13.5px;
-      font-weight: 800;
-      color: var(--text-main);
-      margin-bottom: 4px;
-      display: flex;
-      align-items: center;
-      gap: 7px;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
     }
 
     .filter-group-label {
+      display: block;
       font-size: 11px;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.04em;
       color: var(--text-muted);
       margin-bottom: 6px;
-      display: block;
     }
 
     .pill-row {
@@ -554,77 +550,93 @@
     }
 
     /* =========================================================================
-       7. QR SCANNER & DEMO STICKER GRID
+       6. QR SCANNER HERO, CAMERA FRAME & PWA STEP CARDS
        ========================================================================= */
     .scanner-hero {
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      background: linear-gradient(145deg, #0f172a 0%, #1e293b 60%, #172554 100%);
       color: #ffffff;
-      border-radius: var(--radius-lg);
-      padding: 20px;
+      border-radius: 22px;
+      padding: 20px 16px;
       margin-bottom: 16px;
+      text-align: center;
       box-shadow: var(--shadow-md);
     }
 
     .camera-frame {
       position: relative;
       width: 100%;
-      max-width: 440px;
-      aspect-ratio: 4 / 3;
-      margin: 14px auto;
-      background: #020617;
-      border-radius: 16px;
-      border: 2px solid rgba(59, 130, 246, 0.45);
-      overflow: hidden;
+      max-width: 340px;
+      height: 230px;
+      margin: 0 auto;
+      border-radius: 18px;
+      background: rgba(15, 23, 42, 0.75);
+      border: 2px dashed rgba(96, 165, 250, 0.45);
       display: flex;
       align-items: center;
       justify-content: center;
-      text-align: center;
-      padding: 16px;
+      overflow: hidden;
     }
 
-    .camera-frame video {
+    #qr-video {
+      display: none;
       width: 100%;
       height: 100%;
       object-fit: cover;
-      display: none;
     }
 
     .scan-box-overlay {
-      position: absolute;
-      width: 185px;
-      height: 185px;
-      border: 2.5px solid #38bdf8;
-      border-radius: 18px;
-      box-shadow: 0 0 0 999px rgba(2, 6, 23, 0.52);
-      pointer-events: none;
       display: none;
+      position: absolute;
+      inset: 24px;
+      border: 2px solid #38bdf8;
+      border-radius: 14px;
+      box-shadow: 0 0 0 999px rgba(15, 23, 42, 0.35);
+      pointer-events: none;
     }
 
     .scan-laser {
       position: absolute;
-      left: 8px;
-      right: 8px;
+      left: 6px;
+      right: 6px;
       height: 2px;
       background: #38bdf8;
       box-shadow: 0 0 10px #38bdf8;
-      animation: laserSweep 2s ease-in-out infinite;
+      animation: scanBeam 2.2s ease-in-out infinite;
     }
 
-    @keyframes laserSweep {
-      0%, 100% { top: 12px; }
-      50% { top: calc(100% - 14px); }
+    @keyframes scanBeam {
+      0%, 100% { top: 8%; }
+      50% { top: 88%; }
     }
 
     .demo-qr-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
+      gap: 10px;
     }
 
     @media (min-width: 640px) {
       .demo-qr-grid {
         grid-template-columns: repeat(4, 1fr);
       }
+    }
+
+    .pwa-step-card {
+      background: var(--bg-subtle);
+      border: 1.5px solid var(--border-light);
+      border-radius: 14px;
+      padding: 13px 14px;
+      margin-bottom: 10px;
+    }
+
+    .pwa-step-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 6px;
     }
 
     .demo-qr-card {
@@ -680,6 +692,9 @@
       border: 1px solid var(--border-light);
       border-radius: 12px;
       padding: 11px 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
 
     .spec-lbl {
@@ -687,13 +702,15 @@
       font-weight: 700;
       color: var(--text-muted);
       text-transform: uppercase;
+      line-height: 1.25;
     }
 
     .spec-val {
       font-size: 13.5px;
       font-weight: 700;
       color: var(--text-main);
-      margin-top: 3px;
+      margin-top: 4px;
+      line-height: 1.35;
       word-break: break-word;
     }
 
@@ -951,13 +968,6 @@
       display: block;
     }
 
-    .toolbar-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 10px;
-    }
-
     /* =========================================================================
        10. STEALTH INVISIBLE BOTTOM-LEFT TRIGGER
        ========================================================================= */
@@ -1041,13 +1051,13 @@
 
   <div class="app-root">
     <!-- ===================================================================
-         TOP HEADER (BRAND, OFFLINE STATUS, INSTALL APP, RU/KZ, STAFF LOGIN)
+         TOP HEADER + DOCKED STAFF NAV (ZERO OVERLAP ON MOBILE & DESKTOP)
          =================================================================== -->
     <header class="top-header">
       <div class="container header-inner">
         <div class="brand">
           <div class="brand-logo" aria-hidden="true">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
               <rect x="3" y="3" width="7" height="7" rx="1.5"/>
               <rect x="14" y="3" width="7" height="7" rx="1.5"/>
               <rect x="3" y="14" width="7" height="7" rx="1.5"/>
@@ -1057,51 +1067,54 @@
           <div style="min-width:0;">
             <div class="brand-title">
               <span>OpsQR</span>
-              <span id="hdr-offline-chip" class="offline-chip">● Offline Ready</span>
+              <span id="hdr-offline-chip" class="offline-chip">● Offline</span>
             </div>
             <div id="hdr-subtitle" class="brand-sub">Электронный паспорт оборудования</div>
           </div>
         </div>
 
-        <div class="header-actions">
-          <button id="btn-install-app" type="button" class="install-app-btn" onclick="openInstallAppModal()">
-            📲 <span id="lbl-install-btn">Приложение</span>
-          </button>
+        <div class="header-lang-slot">
           <div class="lang-toggle" role="group" aria-label="Language">
             <button id="btn-ru" type="button" class="lang-btn active" onclick="setLang('ru')">RU</button>
             <button id="btn-kz" type="button" class="lang-btn" onclick="setLang('kz')">KZ</button>
           </div>
-          <div id="header-auth-slot"></div>
+        </div>
+
+        <div class="header-actions">
+          <button id="btn-install-app" type="button" class="install-app-btn" onclick="openInstallAppModal()">
+            📲 <span id="lbl-install-btn">QR / App</span>
+          </button>
+          <div id="header-auth-slot" style="width:100%;"></div>
+        </div>
+      </div>
+
+      <!-- Staff Navigation Bar docked neatly inside header -->
+      <div id="staff-nav-container" class="staff-nav-wrap" style="display:none;">
+        <div class="container">
+          <nav class="staff-nav" aria-label="Staff Workspace">
+            <button id="tab-btn-registry" type="button" class="staff-tab-btn active" onclick="switchStaffTab('registry')">
+              <span>💻</span>
+              <span id="nav-txt-registry">Реестр ПК и QR</span>
+            </button>
+            <button id="tab-btn-passport" type="button" class="staff-tab-btn" onclick="switchStaffTab('passport')">
+              <span>📋</span>
+              <span id="nav-txt-passport">Паспорт и ПО</span>
+            </button>
+            <button id="tab-btn-inventory" type="button" class="staff-tab-btn" onclick="switchStaffTab('inventory')">
+              <span>✅</span>
+              <span id="nav-txt-inventory">Инвентаризация</span>
+            </button>
+            <button id="tab-btn-memos" type="button" class="staff-tab-btn" onclick="switchStaffTab('memos')">
+              <span style="display:inline-flex;align-items:center;gap:4px;">
+                <span>📨</span>
+                <span id="nav-memo-badge" class="tab-counter" style="display:none;">0</span>
+              </span>
+              <span id="nav-txt-memos">Записки</span>
+            </button>
+          </nav>
         </div>
       </div>
     </header>
-
-    <!-- ===================================================================
-         STAFF NAVIGATION BAR (ONLY RENDERED WHEN STAFF IS AUTHENTICATED)
-         =================================================================== -->
-    <div id="staff-nav-container" class="staff-nav-wrap" style="display:none;">
-      <div class="container">
-        <nav class="staff-nav" aria-label="Staff Workspace">
-          <button id="tab-btn-registry" type="button" class="staff-tab-btn active" onclick="switchStaffTab('registry')">
-            <span>💻</span>
-            <span id="nav-txt-registry">Реестр ПК и QR</span>
-          </button>
-          <button id="tab-btn-passport" type="button" class="staff-tab-btn" onclick="switchStaffTab('passport')">
-            <span>📋</span>
-            <span id="nav-txt-passport">Паспорт и ПО</span>
-          </button>
-          <button id="tab-btn-inventory" type="button" class="staff-tab-btn" onclick="switchStaffTab('inventory')">
-            <span>✅</span>
-            <span id="nav-txt-inventory">Инвентаризация</span>
-          </button>
-          <button id="tab-btn-memos" type="button" class="staff-tab-btn" onclick="switchStaffTab('memos')">
-            <span>📨</span>
-            <span id="nav-txt-memos">Записки</span>
-            <span id="nav-memo-badge" class="tab-counter" style="display:none;">0</span>
-          </button>
-        </nav>
-      </div>
-    </div>
 
     <!-- ===================================================================
          MAIN DYNAMIC CONTENT AREA
@@ -1332,7 +1345,7 @@
   </div>
 
   <!-- =====================================================================
-       MODAL 7: INSTALL AS MOBILE APP (IPHONE iOS & ANDROID PWA)
+       MODAL 7: SHARE SITE QR & INSTALL AS MOBILE APP (IPHONE & ANDROID)
        ===================================================================== -->
   <div id="modal-install-app" class="modal-backdrop" onclick="closeOnBackdrop(event, 'modal-install-app')">
     <div class="modal-box" style="max-width:480px;">
@@ -1340,12 +1353,15 @@
         <div style="display:flex;align-items:center;gap:10px;">
           <div id="pwa-icon-preview" style="width:44px;height:44px;border-radius:12px;overflow:hidden;flex-shrink:0;box-shadow:var(--shadow-sm);"></div>
           <div>
-            <h2 id="pwa-modal-title" style="font-size:17px;font-weight:900;line-height:1.2;">📲 Установить OpsQR на телефон</h2>
-            <div id="pwa-modal-sub" style="font-size:12px;color:var(--text-muted);font-weight:700;">Работает как приложение на iPhone и Android без интернета</div>
+            <h2 id="pwa-modal-title" style="font-size:17px;font-weight:900;line-height:1.2;">📲 QR-ссылка и установка OpsQR</h2>
+            <div id="pwa-modal-sub" style="font-size:12px;color:var(--text-muted);font-weight:700;">Откройте по QR-коду или установите на iPhone и Android</div>
           </div>
         </div>
         <button type="button" onclick="closeModal('modal-install-app')" style="width:32px;height:32px;border-radius:10px;background:#f1f5f9;font-weight:800;">✕</button>
       </div>
+
+      <!-- Live Site QR Code Card (for GitHub Pages / Web Hosting) -->
+      <div id="share-site-qr-box" class="pwa-step-card" style="text-align:center;border-color:var(--royal-border);background:var(--royal-soft);"></div>
 
       <div id="pwa-native-install-box" style="display:none;margin-bottom:12px;">
         <button type="button" class="btn btn-emerald btn-block" onclick="triggerNativeAndroidInstall()">
@@ -1362,7 +1378,7 @@
        ===================================================================== -->
   <script>
     /* =========================================================================
-       A. SELF-CONTAINED ISO/IEC 18004 QR CODE ENGINE (VERSIONS 1-5, EC-L, MASK 0)
+       A. SELF-CONTAINED ISO/IEC 18004 QR CODE ENGINE (VERSIONS 1-6, EC-L, MASK 0)
        ========================================================================= */
     const PureQR = (() => {
       const EXP = new Uint8Array(512);
@@ -1412,14 +1428,15 @@
         return res.slice(data.length);
       }
 
-      // Versions 1..5 at Error Correction Level L (Single Block)
+      // Versions 1..6 at Error Correction Level L (Single Block)
       const VERSIONS = [
         null,
         { size: 21, total: 26, data: 19, ec: 7, align: [] },
         { size: 25, total: 44, data: 34, ec: 10, align: [6, 18] },
         { size: 29, total: 70, data: 55, ec: 15, align: [6, 22] },
         { size: 33, total: 100, data: 80, ec: 20, align: [6, 26] },
-        { size: 37, total: 134, data: 108, ec: 26, align: [6, 30] }
+        { size: 37, total: 134, data: 108, ec: 26, align: [6, 30] },
+        { size: 41, total: 172, data: 136, ec: 36, align: [6, 34] }
       ];
 
       function utf8Bytes(str) {
@@ -1440,10 +1457,10 @@
       function buildMatrix(text) {
         const bytes = utf8Bytes(String(text));
         let ver = 1;
-        while (ver <= 5 && bytes.length + 2 > VERSIONS[ver].data) {
+        while (ver <= 6 && bytes.length + 2 > VERSIONS[ver].data) {
           ver++;
         }
-        if (ver > 5) ver = 5;
+        if (ver > 6) ver = 6;
         const spec = VERSIONS[ver];
         const maxPayload = spec.data - 2;
         const payload = bytes.slice(0, maxPayload);
@@ -1620,7 +1637,7 @@
     const I18N = {
       ru: {
         offlineChip: '● Offline Ready',
-        installBtn: 'Приложение',
+        installBtn: 'QR / App',
         installedChip: 'App Mode',
         hdrSubtitle: 'Электронный паспорт оборудования',
         staffLoginBtn: 'Вход для сотрудников',
@@ -1654,7 +1671,7 @@
       },
       kz: {
         offlineChip: '● Автономды режим',
-        installBtn: 'Қосымша',
+        installBtn: 'QR / App',
         installedChip: 'App Mode',
         hdrSubtitle: 'Жабдықтың электронды паспорты',
         staffLoginBtn: 'Қызметкерлерге кіру',
@@ -2005,8 +2022,34 @@
       return `${formatToday()}, ${hh}:${min}`;
     }
 
+    function getBaseWebUrl() {
+      try {
+        const u = new URL(window.location.href);
+        u.search = '';
+        u.hash = '';
+        return u.toString();
+      } catch (e) {
+        return window.location.href.split('?')[0].split('#')[0];
+      }
+    }
+
     function getQrPayload(pc) {
+      if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+        try {
+          const u = new URL(getBaseWebUrl());
+          u.searchParams.set('pc', pc.id);
+          return u.toString();
+        } catch (e) {}
+      }
       return `OPSQR|${pc.id}|${pc.building}|${pc.room}`;
+    }
+
+    function clearPcQueryFromUrl() {
+      try {
+        if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+          window.history.replaceState(null, '', getBaseWebUrl());
+        }
+      } catch (e) {}
     }
 
     function showToast(msg) {
@@ -2101,6 +2144,7 @@
       isStaff = false;
       scannedPcId = null;
       editingSwIdx = null;
+      clearPcQueryFromUrl();
       showToast('Вы вышли из режима сотрудника');
       renderAll();
     }
@@ -2115,7 +2159,6 @@
        G. MASTER RENDER FUNCTION
        ========================================================================= */
     function renderAll() {
-      // Update Header
       document.getElementById('hdr-offline-chip').textContent = t('offlineChip');
       document.getElementById('hdr-subtitle').textContent = t('hdrSubtitle');
       const installBtnLbl = document.getElementById('lbl-install-btn');
@@ -2143,7 +2186,6 @@
         `;
       }
 
-      // Staff Navigation Bar
       const navWrap = document.getElementById('staff-nav-container');
       if (isStaff) {
         navWrap.style.display = 'block';
@@ -2169,7 +2211,6 @@
         navWrap.style.display = 'none';
       }
 
-      // Main Content Area
       const main = document.getElementById('main-content');
       if (!isStaff) {
         if (scannedPcId) {
@@ -2326,7 +2367,17 @@
     }
 
     function extractPcIdFromQr(rawText) {
-      const clean = String(rawText || '').trim().toUpperCase();
+      const raw = String(rawText || '').trim();
+      if (!raw) return null;
+      try {
+        if (/^https?:\/\//i.test(raw)) {
+          const u = new URL(raw);
+          const pcParam = u.searchParams.get('pc');
+          if (pcParam) return pcParam.trim().toUpperCase();
+        }
+      } catch (e) {}
+
+      const clean = raw.toUpperCase();
       if (clean.startsWith('OPSQR|')) {
         const parts = clean.split('|');
         return parts[1] || null;
@@ -2363,6 +2414,7 @@
       const pc = appData.pcs.find(p => p.id === pcId);
       if (!pc) {
         scannedPcId = null;
+        clearPcQueryFromUrl();
         renderStudentScannerView(container);
         return;
       }
@@ -2384,7 +2436,7 @@
 
       container.innerHTML = `
         <div style="margin-bottom:12px;">
-          <button type="button" class="btn btn-outline btn-sm" onclick="scannedPcId=null;renderAll();">
+          <button type="button" class="btn btn-outline btn-sm" onclick="scannedPcId=null;clearPcQueryFromUrl();renderAll();">
             ${escapeHtml(t('backToScanner'))}
           </button>
         </div>
@@ -2497,7 +2549,6 @@
       closeModal('modal-report');
       renderAll();
 
-      // Show official generated Service Memo slip immediately
       const slipBody = document.getElementById('memo-slip-modal-body');
       slipBody.innerHTML = `
         <div class="memo-document">
@@ -2596,7 +2647,6 @@
         }).join('')}
       `;
 
-      // Floor pills based on selected building (Главный: 4, 1 корпус: 6, 2 корпус: 6, 4 корпус: 4)
       const maxFloors = filterBuilding === 'ALL' ? 6 : (BUILDING_FLOORS[filterBuilding] || 6);
       const baseByBuilding = filterBuilding === 'ALL'
         ? appData.pcs
@@ -2616,7 +2666,6 @@
         `;
       }
 
-      // Room pills (3-digit rooms filtered by building & floor)
       const baseByFloor = filterFloor === 'ALL'
         ? baseByBuilding
         : baseByBuilding.filter(p => Number(p.floor) === Number(filterFloor));
@@ -2750,7 +2799,6 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    /* Add New PC Modal Logic with Strict Building / Floor / 3-Digit Room */
     function openAddPcModal() {
       const bSel = document.getElementById('new-pc-building');
       bSel.value = filterBuilding !== 'ALL' ? filterBuilding : 'Главный корпус';
@@ -2982,7 +3030,6 @@
         </option>
       `).join('');
 
-      // Software CRUD rows (Edit inline, Delete, Add new, Quick-add chips)
       const swRowsHtml = pc.software.length
         ? pc.software.map((swName, idx) => {
             if (editingSwIdx === idx) {
@@ -3502,7 +3549,7 @@
     }
 
     /* =========================================================================
-       O. MOBILE APP (PWA) SUPPORT FOR IPHONE (iOS) & ANDROID + OFFLINE SW
+       O. MOBILE APP (PWA) & LIVE GITHUB PAGES QR SHARING
        ========================================================================= */
     let deferredInstallPrompt = null;
     let generatedIcon512Url = null;
@@ -3587,7 +3634,7 @@
           name: 'OpsQR — Электронный паспорт ПК',
           short_name: 'OpsQR',
           description: 'Автономная система QR-паспортов компьютеров, служебных записок и инвентаризации',
-          start_url: window.location.href,
+          start_url: getBaseWebUrl(),
           display: 'standalone',
           orientation: 'portrait',
           background_color: '#0f172a',
@@ -3613,7 +3660,7 @@
       if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
         try {
           const swCode = `
-            const CACHE_NAME = 'opsqr-offline-v2';
+            const CACHE_NAME = 'opsqr-offline-v3';
             self.addEventListener('install', ev => {
               self.skipWaiting();
               ev.waitUntil(
@@ -3653,11 +3700,46 @@
       deferredInstallPrompt = null;
     }
 
+    function copyShareUrl(urlText) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(urlText).then(() => {
+          showToast('📋 Ссылка скопирована в буфер обмена!');
+        }).catch(() => {});
+      } else {
+        showToast('Скопируйте ссылку из поля выше');
+      }
+    }
+
     function openInstallAppModal() {
       triggerHaptic();
       const iconPrev = document.getElementById('pwa-icon-preview');
       if (iconPrev && generatedIcon512Url) {
         iconPrev.innerHTML = `<img src="${generatedIcon512Url}" alt="OpsQR" style="width:100%;height:100%;object-fit:cover;" />`;
+      }
+
+      const isWeb = window.location.protocol === 'http:' || window.location.protocol === 'https:';
+      const siteUrl = getBaseWebUrl();
+      const shareBox = document.getElementById('share-site-qr-box');
+
+      if (isWeb) {
+        shareBox.innerHTML = `
+          <div class="pwa-step-title" style="justify-content:center;color:var(--royal);">🌐 QR-код для входа на сайт OpsQR</div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;">
+            Покажите этот QR-код комиссии или студентам — камера телефона сразу откроет приложение:
+          </div>
+          <canvas id="share-site-qr-canvas" style="margin:6px auto;display:block;border-radius:10px;border:2px solid #ffffff;box-shadow:var(--shadow-sm);"></canvas>
+          <div style="display:flex;gap:6px;margin-top:8px;">
+            <input type="text" class="form-control" readonly value="${escapeHtml(siteUrl)}" style="font-size:12px;font-family:monospace;padding:7px 9px;" />
+            <button type="button" class="btn btn-primary btn-sm" onclick="copyShareUrl('${escapeHtml(siteUrl)}')">Копировать</button>
+          </div>
+        `;
+      } else {
+        shareBox.innerHTML = `
+          <div class="pwa-step-title" style="justify-content:center;color:var(--royal);">🌐 Публичная ссылка через GitHub Pages</div>
+          <div style="font-size:12.5px;color:var(--text-secondary);text-align:left;">
+            Сейчас файл открыт локально с диска. Загрузите <b>index.html</b> на <b>GitHub Pages</b>, чтобы получить ссылку вида <code>https://ваш-логин.github.io/opsqr/</code> — после этого здесь появится QR-код для мгновенного входа с любого телефона!
+          </div>
+        `;
       }
 
       const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
@@ -3666,7 +3748,7 @@
 
       if (isStandalone) {
         container.innerHTML = `
-          <div class="pwa-step-card" style="background:var(--emerald-soft);border-color:var(--emerald-border);">
+          <div class="pwa-step-card" style="background:var(--emerald-soft);border-color:var(--emerald-border);margin-bottom:0;">
             <div class="pwa-step-title" style="color:var(--emerald);">✅ Приложение OpsQR уже установлено!</div>
             <div style="font-size:13px;color:var(--text-secondary);">
               Вы открыли OpsQR в полноэкранном режиме приложения. Все данные сохраняются в памяти телефона и работают без интернета.
@@ -3676,40 +3758,57 @@
       } else {
         container.innerHTML = `
           <div class="pwa-step-card" style="${isIos ? 'border-color:var(--royal-bright);background:var(--royal-soft);' : ''}">
-            <div class="pwa-step-title">🍎 Для iPhone / iPad (Safari)</div>
+            <div class="pwa-step-title">🍎 Установить на iPhone / iPad (Safari)</div>
             <ol style="font-size:13px;color:var(--text-secondary);padding-left:18px;display:grid;gap:4px;">
-              <li>Откройте эту страницу в браузере <b>Safari</b>.</li>
-              <li>Нажмите кнопку <b>«Поделиться» (квадрат со стрелкой вверх ⬆️)</b> на нижней панели.</li>
-              <li>Пролистайте вниз и выберите <b>«На экран „Домой“» (Add to Home Screen)</b> → нажмите <b>«Добавить»</b>.</li>
+              <li>Откройте ссылку в браузере <b>Safari</b>.</li>
+              <li>Нажмите <b>«Поделиться» (квадрат со стрелкой вверх ⬆️)</b>.</li>
+              <li>Выберите <b>«На экран „Домой“»</b> → нажмите <b>«Добавить»</b>.</li>
             </ol>
           </div>
 
-          <div class="pwa-step-card" style="${!isIos ? 'border-color:var(--royal-bright);background:var(--royal-soft);' : ''}">
-            <div class="pwa-step-title">🤖 Для Android (Google Chrome)</div>
+          <div class="pwa-step-card" style="margin-bottom:0;${!isIos ? 'border-color:var(--royal-bright);background:var(--royal-soft);' : ''}">
+            <div class="pwa-step-title">🤖 Установить на Android (Google Chrome)</div>
             <ol style="font-size:13px;color:var(--text-secondary);padding-left:18px;display:grid;gap:4px;">
-              <li>Откройте страницу в браузере <b>Chrome</b> (или нажмите зелёную кнопку установки выше, если она появилась).</li>
-              <li>Нажмите на меню <b>⋮ (три точки)</b> в правом верхнем углу.</li>
+              <li>Откройте ссылку в браузере <b>Chrome</b>.</li>
+              <li>Нажмите меню <b>⋮ (три точки)</b> в правом верхнем углу.</li>
               <li>Выберите <b>«Установить приложение»</b> или <b>«Добавить на гл. экран»</b>.</li>
             </ol>
-          </div>
-
-          <div class="pwa-step-card" style="margin-bottom:0;">
-            <div class="pwa-step-title">✈️ Работа полностью без интернета</div>
-            <div style="font-size:12.5px;color:var(--text-secondary);">
-              После установки на рабочий стол <b>OpsQR</b> запускается без адресной строки браузера как отдельное приложение. Реестр ПК, сканер QR, служебные записки и инвентаризация работают в авиарежиме.
-            </div>
           </div>
         `;
       }
 
       openModal('modal-install-app');
+
+      if (isWeb) {
+        const qrCanvas = document.getElementById('share-site-qr-canvas');
+        if (qrCanvas) PureQR.drawToCanvas(qrCanvas, siteUrl, 175);
+      }
     }
 
     /* =========================================================================
-       P. INITIALIZATION ON WINDOW LOAD
+       P. INITIALIZATION & DEEP-LINK ?pc=PC_ID AUTO-OPEN ON LOAD
        ========================================================================= */
+    function checkInitialUrlDeepLink() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        let targetPc = params.get('pc');
+        if (!targetPc && window.location.hash && window.location.hash.includes('pc=')) {
+          const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+          targetPc = hashParams.get('pc');
+        }
+        if (targetPc) {
+          const found = appData.pcs.find(p => p.id.toUpperCase() === targetPc.trim().toUpperCase());
+          if (found) {
+            isStaff = false;
+            scannedPcId = found.id;
+          }
+        }
+      } catch (e) {}
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
       initPwaSupport();
+      checkInitialUrlDeepLink();
       renderAll();
     });
   </script>
