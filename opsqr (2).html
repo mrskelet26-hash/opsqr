@@ -1,0 +1,3725 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="OpsQR" />
+  <meta name="format-detection" content="telephone=no" />
+  <link id="dynamic-manifest" rel="manifest" />
+  <link id="dynamic-apple-icon" rel="apple-touch-icon" />
+  <link id="dynamic-favicon" rel="icon" type="image/png" />
+  <title>OpsQR — Электронный паспорт ПК, Служебные записки и Инвентаризация</title>
+
+  <style>
+    /* =========================================================================
+       1. DESIGN TOKENS & BASE RESET (100% SELF-CONTAINED, ZERO EXTERNAL CDNs)
+       ========================================================================= */
+    :root {
+      --bg-page: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-subtle: #f1f5f9;
+      --bg-header: #0f172a;
+      --text-main: #0f172a;
+      --text-secondary: #334155;
+      --text-muted: #64748b;
+      --border-light: #e2e8f0;
+      --border-med: #cbd5e1;
+
+      --royal: #1e40af;
+      --royal-bright: #2563eb;
+      --royal-hover: #1d4ed8;
+      --royal-soft: #eff6ff;
+      --royal-border: #bfdbfe;
+
+      --emerald: #059669;
+      --emerald-soft: #ecfdf5;
+      --emerald-border: #a7f3d0;
+
+      --amber: #b45309;
+      --amber-soft: #fffbeb;
+      --amber-border: #fde68a;
+
+      --rose: #dc2626;
+      --rose-soft: #fef2f2;
+      --rose-border: #fecaca;
+
+      --radius-sm: 10px;
+      --radius-md: 14px;
+      --radius-lg: 18px;
+      --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08);
+      --shadow-lg: 0 18px 40px rgba(15, 23, 42, 0.22);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      min-height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      font-size: 15px;
+      line-height: 1.48;
+      -webkit-font-smoothing: antialiased;
+      overscroll-behavior-y: none;
+    }
+
+    button, .top-header, .staff-nav-wrap {
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    button, input, select, textarea {
+      font-family: inherit;
+      font-size: inherit;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      background: none;
+    }
+
+    #print-area {
+      display: none;
+    }
+
+    /* =========================================================================
+       2. APP SHELL & RESPONSIVE CONTAINER
+       ========================================================================= */
+    .app-root {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 960px;
+      margin: 0 auto;
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+
+    .main-area {
+      flex: 1;
+      padding-top: 18px;
+      padding-bottom: calc(36px + env(safe-area-inset-bottom));
+    }
+
+    /* =========================================================================
+       3. TOP HEADER
+       ========================================================================= */
+    .top-header {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: var(--bg-header);
+      color: #ffffff;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: env(safe-area-inset-top);
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding-top: 12px;
+      padding-bottom: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .brand-logo {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+    }
+
+    .brand-title {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+
+    .offline-chip {
+      font-size: 10.5px;
+      font-weight: 800;
+      background: rgba(16, 185, 129, 0.18);
+      color: #6ee7b7;
+      border: 1px solid rgba(52, 211, 153, 0.35);
+      padding: 2px 7px;
+      border-radius: 999px;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+
+    .brand-sub {
+      font-size: 11.5px;
+      color: #94a3b8;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .lang-toggle {
+      display: inline-flex;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 3px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .lang-btn {
+      padding: 5px 9px;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #cbd5e1;
+      transition: all 0.15s ease;
+    }
+
+    .lang-btn.active {
+      background: #ffffff;
+      color: #0f172a;
+    }
+
+    .staff-entry-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: rgba(37, 99, 235, 0.28);
+      border: 1px solid rgba(96, 165, 250, 0.5);
+      color: #dbeafe;
+      font-size: 12.5px;
+      font-weight: 700;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .staff-entry-btn:hover {
+      background: rgba(37, 99, 235, 0.45);
+    }
+
+    .install-app-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 7px 10px;
+      border-radius: 10px;
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(52, 211, 153, 0.45);
+      color: #6ee7b7;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+
+    .install-app-btn:hover {
+      background: rgba(16, 185, 129, 0.35);
+    }
+
+    /* =========================================================================
+       4. STAFF NAVIGATION BAR
+       ========================================================================= */
+    .staff-nav-wrap {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border-light);
+      position: sticky;
+      top: 62px;
+      z-index: 30;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .staff-nav {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      padding: 8px 0;
+    }
+
+    .staff-tab-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 9px 8px;
+      border-radius: 11px;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      background: transparent;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .staff-tab-btn:hover {
+      background: var(--bg-subtle);
+      color: var(--text-main);
+    }
+
+    .staff-tab-btn.active {
+      background: var(--royal);
+      color: #ffffff;
+      box-shadow: 0 3px 10px rgba(30, 64, 175, 0.22);
+    }
+
+    .tab-counter {
+      background: var(--rose);
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 1px 6px;
+      border-radius: 999px;
+    }
+
+    /* =========================================================================
+       5. CARDS, BUTTONS, BADGES & FORMS
+       ========================================================================= */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .section-hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 10px 15px;
+      border-radius: 12px;
+      font-size: 13.5px;
+      font-weight: 700;
+      transition: all 0.15s ease;
+      text-align: center;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-sm {
+      padding: 7px 11px;
+      font-size: 12.5px;
+      border-radius: 10px;
+    }
+
+    .btn-block {
+      width: 100%;
+    }
+
+    .btn-primary {
+      background: var(--royal-bright);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    }
+
+    .btn-primary:hover {
+      background: var(--royal-hover);
+    }
+
+    .btn-dark {
+      background: #0f172a;
+      color: #ffffff;
+    }
+
+    .btn-dark:hover {
+      background: #1e293b;
+    }
+
+    .btn-emerald {
+      background: var(--emerald);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(5, 150, 105, 0.22);
+    }
+
+    .btn-emerald:hover {
+      background: #047857;
+    }
+
+    .btn-danger {
+      background: var(--rose);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.22);
+    }
+
+    .btn-danger:hover {
+      background: #b91c1c;
+    }
+
+    .btn-outline {
+      background: #ffffff;
+      color: var(--text-main);
+      border: 1.5px solid var(--border-med);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--royal-bright);
+      color: var(--royal);
+      background: var(--royal-soft);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .badge-working {
+      background: var(--emerald-soft);
+      color: var(--emerald);
+      border: 1px solid var(--emerald-border);
+    }
+
+    .badge-service_due {
+      background: var(--amber-soft);
+      color: var(--amber);
+      border: 1px solid var(--amber-border);
+    }
+
+    .badge-broken {
+      background: var(--rose-soft);
+      color: var(--rose);
+      border: 1px solid var(--rose-border);
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      margin-bottom: 5px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 11px;
+      border: 1.5px solid var(--border-med);
+      background: #ffffff;
+      color: var(--text-main);
+      font-size: 14px;
+      transition: border-color 0.15s ease;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--royal-bright);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    /* =========================================================================
+       6. PWA INSTALL MODAL CARDS & FILTER PILLS
+       ========================================================================= */
+    .pwa-step-card {
+      background: #f8fafc;
+      border: 1.5px solid var(--border-light);
+      border-radius: 14px;
+      padding: 13px 14px;
+      margin-bottom: 10px;
+    }
+
+    .pwa-step-title {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .filter-group-label {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .filter-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 7px 11px;
+      border-radius: 10px;
+      background: var(--bg-subtle);
+      border: 1.5px solid var(--border-light);
+      color: var(--text-secondary);
+      font-size: 12.5px;
+      font-weight: 700;
+      transition: all 0.14s ease;
+    }
+
+    .filter-pill:hover {
+      border-color: var(--royal-border);
+      background: var(--royal-soft);
+      color: var(--royal);
+    }
+
+    .filter-pill.active {
+      background: var(--royal);
+      border-color: var(--royal);
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(29, 78, 216, 0.25);
+    }
+
+    .pill-count {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 1px 6px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.08);
+    }
+
+    .filter-pill.active .pill-count {
+      background: rgba(255, 255, 255, 0.22);
+      color: #ffffff;
+    }
+
+    /* =========================================================================
+       7. QR SCANNER & DEMO STICKER GRID
+       ========================================================================= */
+    .scanner-hero {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #ffffff;
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .camera-frame {
+      position: relative;
+      width: 100%;
+      max-width: 440px;
+      aspect-ratio: 4 / 3;
+      margin: 14px auto;
+      background: #020617;
+      border-radius: 16px;
+      border: 2px solid rgba(59, 130, 246, 0.45);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 16px;
+    }
+
+    .camera-frame video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+
+    .scan-box-overlay {
+      position: absolute;
+      width: 185px;
+      height: 185px;
+      border: 2.5px solid #38bdf8;
+      border-radius: 18px;
+      box-shadow: 0 0 0 999px rgba(2, 6, 23, 0.52);
+      pointer-events: none;
+      display: none;
+    }
+
+    .scan-laser {
+      position: absolute;
+      left: 8px;
+      right: 8px;
+      height: 2px;
+      background: #38bdf8;
+      box-shadow: 0 0 10px #38bdf8;
+      animation: laserSweep 2s ease-in-out infinite;
+    }
+
+    @keyframes laserSweep {
+      0%, 100% { top: 12px; }
+      50% { top: calc(100% - 14px); }
+    }
+
+    .demo-qr-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    @media (min-width: 640px) {
+      .demo-qr-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    .demo-qr-card {
+      background: #f8fafc;
+      border: 1.5px solid var(--border-light);
+      border-radius: 14px;
+      padding: 12px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .demo-qr-card:hover {
+      border-color: var(--royal-bright);
+      background: var(--royal-soft);
+      transform: translateY(-2px);
+    }
+
+    .demo-qr-id {
+      font-family: ui-monospace, monospace;
+      font-size: 11.5px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .demo-qr-title {
+      font-size: 12.5px;
+      font-weight: 800;
+      color: var(--royal);
+      line-height: 1.25;
+    }
+
+    /* =========================================================================
+       8. ELECTRONIC PASSPORT & EDITABLE INSTALLED SOFTWARE (STAFF MODE)
+       ========================================================================= */
+    .specs-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    @media (min-width: 640px) {
+      .specs-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .spec-item {
+      background: #f8fafc;
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      padding: 11px 12px;
+    }
+
+    .spec-lbl {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .spec-val {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-top: 3px;
+      word-break: break-word;
+    }
+
+    .sw-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .sw-tag {
+      background: var(--royal-soft);
+      color: var(--royal);
+      border: 1px solid var(--royal-border);
+      padding: 6px 11px;
+      border-radius: 9px;
+      font-size: 12.5px;
+      font-weight: 700;
+    }
+
+    .sw-crud-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .sw-crud-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 9px 12px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-light);
+      border-radius: 11px;
+    }
+
+    .quick-chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .quick-sw-chip {
+      padding: 5px 9px;
+      border-radius: 8px;
+      background: var(--royal-soft);
+      border: 1px solid var(--royal-border);
+      color: var(--royal);
+      font-size: 11.5px;
+      font-weight: 700;
+    }
+
+    .quick-sw-chip:hover {
+      background: var(--royal);
+      color: #ffffff;
+    }
+
+    .quick-sw-chip.installed {
+      background: var(--emerald-soft);
+      border-color: var(--emerald-border);
+      color: var(--emerald);
+      opacity: 0.78;
+    }
+
+    .timeline {
+      border-left: 2px solid var(--border-med);
+      padding-left: 16px;
+      margin-left: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .timeline-row {
+      position: relative;
+    }
+
+    .timeline-dot {
+      position: absolute;
+      left: -22px;
+      top: 4px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--royal-bright);
+      border: 2px solid #ffffff;
+      box-shadow: 0 0 0 2px var(--royal-border);
+    }
+
+    .memo-document {
+      background: #ffffff;
+      border: 2px solid #0f172a;
+      border-radius: 14px;
+      padding: 18px;
+      position: relative;
+    }
+
+    .memo-header-grid {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      border-bottom: 1.5px solid #cbd5e1;
+      padding-bottom: 12px;
+      margin-bottom: 12px;
+    }
+
+    .memo-stamp {
+      display: inline-block;
+      border: 2px solid var(--emerald);
+      color: var(--emerald);
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    /* =========================================================================
+       9. STAFF REGISTRY CARDS, INVENTORY & MODALS
+       ========================================================================= */
+    .registry-card {
+      background: #ffffff;
+      border: 1px solid var(--border-light);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    @media (min-width: 720px) {
+      .registry-card {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 12px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 10px 0;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #059669 0%, #10b981 100%);
+      transition: width 0.3s ease;
+    }
+
+    .inv-check-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      background: #f8fafc;
+      border: 1.5px solid var(--border-light);
+      border-radius: 14px;
+      margin-bottom: 8px;
+      transition: all 0.15s ease;
+    }
+
+    .inv-check-row.verified {
+      background: var(--emerald-soft);
+      border-color: var(--emerald-border);
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      background: rgba(15, 23, 42, 0.65);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+      overflow-y: auto;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-box {
+      width: 100%;
+      max-width: 540px;
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: var(--shadow-lg);
+      max-height: 90dvh;
+      overflow-y: auto;
+      animation: popIn 0.2s ease-out;
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.96) translateY(8px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .issue-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-bottom: 12px;
+    }
+
+    .issue-chip {
+      padding: 8px 11px;
+      border-radius: 10px;
+      background: #f1f5f9;
+      border: 1.5px solid var(--border-light);
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-main);
+      text-align: left;
+    }
+
+    .issue-chip.active {
+      background: var(--rose-soft);
+      border-color: var(--rose);
+      color: var(--rose);
+    }
+
+    .toast {
+      position: fixed;
+      top: 74px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 32px);
+      max-width: 480px;
+      z-index: 80;
+      background: #0f172a;
+      color: #ffffff;
+      border: 1px solid rgba(96, 165, 250, 0.45);
+      border-radius: 14px;
+      padding: 12px 16px;
+      box-shadow: var(--shadow-lg);
+      display: none;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .toast.show {
+      display: block;
+    }
+
+    .toolbar-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    /* =========================================================================
+       10. STEALTH INVISIBLE BOTTOM-LEFT TRIGGER
+       ========================================================================= */
+    #stealth-demo-trigger {
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      width: 56px;
+      height: 56px;
+      opacity: 0 !important;
+      background: transparent !important;
+      border: none !important;
+      outline: none !important;
+      box-shadow: none !important;
+      z-index: 9999;
+      cursor: default;
+      padding: 0;
+      margin: 0;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    #stealth-demo-trigger:hover,
+    #stealth-demo-trigger:focus,
+    #stealth-demo-trigger:active {
+      opacity: 0 !important;
+      background: transparent !important;
+      outline: none !important;
+      box-shadow: none !important;
+    }
+
+    /* =========================================================================
+       11. DEDICATED @MEDIA PRINT STYLES (QR STICKERS, MEMOS, INVENTORY ACT)
+       ========================================================================= */
+    @media print {
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+      }
+      .app-root, .modal-backdrop, .toast, #stealth-demo-trigger {
+        display: none !important;
+      }
+      #print-area {
+        display: block !important;
+        width: 100% !important;
+        padding: 10mm !important;
+      }
+      .print-sticker-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10mm !important;
+      }
+      .print-sticker-card {
+        border: 2px solid #000000 !important;
+        border-radius: 10px !important;
+        padding: 12px !important;
+        text-align: center !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+      .print-act-table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        margin-top: 12px !important;
+        font-size: 10.5pt !important;
+      }
+      .print-act-table th, .print-act-table td {
+        border: 1px solid #000000 !important;
+        padding: 6px 8px !important;
+        text-align: left !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Dedicated Print Area -->
+  <div id="print-area"></div>
+
+  <!-- Floating Toast -->
+  <div id="toast" class="toast" role="status"></div>
+
+  <div class="app-root">
+    <!-- ===================================================================
+         TOP HEADER (BRAND, OFFLINE STATUS, INSTALL APP, RU/KZ, STAFF LOGIN)
+         =================================================================== -->
+    <header class="top-header">
+      <div class="container header-inner">
+        <div class="brand">
+          <div class="brand-logo" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+              <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+              <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+              <path d="M14 14h3v3h-3zM19 14h2v2h-2zM14 19h2v2h-2zM18 18h3v3h-3z" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div style="min-width:0;">
+            <div class="brand-title">
+              <span>OpsQR</span>
+              <span id="hdr-offline-chip" class="offline-chip">● Offline Ready</span>
+            </div>
+            <div id="hdr-subtitle" class="brand-sub">Электронный паспорт оборудования</div>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <button id="btn-install-app" type="button" class="install-app-btn" onclick="openInstallAppModal()">
+            📲 <span id="lbl-install-btn">Приложение</span>
+          </button>
+          <div class="lang-toggle" role="group" aria-label="Language">
+            <button id="btn-ru" type="button" class="lang-btn active" onclick="setLang('ru')">RU</button>
+            <button id="btn-kz" type="button" class="lang-btn" onclick="setLang('kz')">KZ</button>
+          </div>
+          <div id="header-auth-slot"></div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ===================================================================
+         STAFF NAVIGATION BAR (ONLY RENDERED WHEN STAFF IS AUTHENTICATED)
+         =================================================================== -->
+    <div id="staff-nav-container" class="staff-nav-wrap" style="display:none;">
+      <div class="container">
+        <nav class="staff-nav" aria-label="Staff Workspace">
+          <button id="tab-btn-registry" type="button" class="staff-tab-btn active" onclick="switchStaffTab('registry')">
+            <span>💻</span>
+            <span id="nav-txt-registry">Реестр ПК и QR</span>
+          </button>
+          <button id="tab-btn-passport" type="button" class="staff-tab-btn" onclick="switchStaffTab('passport')">
+            <span>📋</span>
+            <span id="nav-txt-passport">Паспорт и ПО</span>
+          </button>
+          <button id="tab-btn-inventory" type="button" class="staff-tab-btn" onclick="switchStaffTab('inventory')">
+            <span>✅</span>
+            <span id="nav-txt-inventory">Инвентаризация</span>
+          </button>
+          <button id="tab-btn-memos" type="button" class="staff-tab-btn" onclick="switchStaffTab('memos')">
+            <span>📨</span>
+            <span id="nav-txt-memos">Записки</span>
+            <span id="nav-memo-badge" class="tab-counter" style="display:none;">0</span>
+          </button>
+        </nav>
+      </div>
+    </div>
+
+    <!-- ===================================================================
+         MAIN DYNAMIC CONTENT AREA
+         =================================================================== -->
+    <main class="container main-area" id="main-content"></main>
+  </div>
+
+  <!-- =====================================================================
+       MODAL 1: STAFF LOGIN MODAL ("Вход для сотрудников")
+       ===================================================================== -->
+  <div id="modal-login" class="modal-backdrop" onclick="closeOnBackdrop(event, 'modal-login')">
+    <div class="modal-box" style="max-width:420px;">
+      <div class="section-hdr">
+        <h2 id="login-modal-title" style="font-size:18px;font-weight:800;">🔐 Вход для сотрудников</h2>
+        <button type="button" onclick="closeModal('modal-login')" style="width:32px;height:32px;border-radius:10px;background:#f1f5f9;font-weight:800;">✕</button>
+      </div>
+      <p id="login-modal-desc" style="font-size:13px;color:var(--text-secondary);margin-bottom:14px;">
+        Доступ для ИТ-инженеров, лаборантов и администраторов. Студентам вход не требуется.
+      </p>
+
+      <div id="login-err" style="display:none;background:var(--rose-soft);border:1px solid var(--rose-border);color:var(--rose);padding:10px 12px;border-radius:10px;font-size:12.5px;font-weight:700;margin-bottom:12px;"></div>
+
+      <form onsubmit="submitStaffLogin(event)">
+        <div class="form-group">
+          <label id="lbl-login-user" class="form-label" for="inp-staff-user">Логин</label>
+          <input id="inp-staff-user" class="form-control" type="text" required placeholder="admin" autocomplete="username" />
+        </div>
+        <div class="form-group">
+          <label id="lbl-login-pass" class="form-label" for="inp-staff-pass">Пароль</label>
+          <input id="inp-staff-pass" class="form-control" type="password" required placeholder="admin2026" autocomplete="current-password" />
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">
+          🔓 <span id="lbl-login-go">Войти в панель сотрудника</span>
+        </button>
+      </form>
+
+      <!-- Hidden Demo Quick-Login (Only visible when stealth corner trigger is active) -->
+      <div id="login-stealth-box" style="display:none;margin-top:14px;padding-top:12px;border-top:1px dashed var(--border-med);">
+        <button type="button" class="btn btn-outline btn-block" onclick="quickDemoStaffLogin()">
+          ⚡ Демо-вход ИТ-сотрудника (в 1 клик)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       MODAL 2: STUDENT REPORT PROBLEM -> SERVICE MEMO GENERATOR
+       ===================================================================== -->
+  <div id="modal-report" class="modal-backdrop" onclick="closeOnBackdrop(event, 'modal-report')">
+    <div class="modal-box">
+      <div class="section-hdr">
+        <div>
+          <h2 id="rep-modal-title" style="font-size:18px;font-weight:800;color:var(--rose);">⚠️ Сообщить о проблеме с ПК</h2>
+          <div id="rep-device-caption" style="font-size:12.5px;font-weight:700;color:var(--text-secondary);margin-top:2px;"></div>
+        </div>
+        <button type="button" onclick="closeModal('modal-report')" style="width:32px;height:32px;border-radius:10px;background:#f1f5f9;font-weight:800;">✕</button>
+      </div>
+
+      <form onsubmit="submitProblemMemo(event)">
+        <div class="form-group">
+          <label id="lbl-rep-chips" class="form-label">Выберите типовую неисправность:</label>
+          <div id="rep-issue-chips" class="issue-chips"></div>
+        </div>
+
+        <div class="form-group">
+          <label id="lbl-rep-desc" class="form-label">Описание проблемы *</label>
+          <textarea id="rep-desc-input" class="form-control" rows="3" required placeholder="Опишите, что произошло с компьютером..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label id="lbl-rep-sender" class="form-label">Отправитель (ФИО / группа / роль)</label>
+          <input id="rep-sender-input" class="form-control" type="text" placeholder="Студент / Пользователь" />
+        </div>
+
+        <button type="submit" class="btn btn-danger btn-block">
+          📨 <span id="lbl-rep-submit">Сформировать служебную записку</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       MODAL 3: ADD NEW PC WITH STRICT BUILDING / FLOOR / 3-DIGIT ROOM VALIDATION
+       ===================================================================== -->
+  <div id="modal-add-pc" class="modal-backdrop" onclick="closeOnBackdrop(event, 'modal-add-pc')">
+    <div class="modal-box">
+      <div class="section-hdr">
+        <h2 id="add-modal-title" style="font-size:18px;font-weight:800;">➕ Добавить новый ПК в реестр</h2>
+        <button type="button" onclick="closeModal('modal-add-pc')" style="width:32px;height:32px;border-radius:10px;background:#f1f5f9;font-weight:800;">✕</button>
+      </div>
+
+      <form onsubmit="submitNewPc(event)">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="form-group">
+            <label class="form-label">Корпус *</label>
+            <select id="new-pc-building" class="form-control" onchange="onNewPcBuildingChange()">
+              <option value="Главный корпус">Главный корпус [4 эт.]</option>
+              <option value="1 корпус">1 корпус [6 эт.]</option>
+              <option value="2 корпус">2 корпус [6 эт.]</option>
+              <option value="4 корпус">4 корпус [4 эт.]</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Этаж *</label>
+            <select id="new-pc-floor" class="form-control" onchange="onNewPcFloorChange()"></select>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="form-group">
+            <label class="form-label">Кабинет (3 цифры) *</label>
+            <input id="new-pc-room-num" class="form-control" type="text" inputmode="numeric" maxlength="3" required placeholder="105" oninput="onNewPcRoomNumInput()" style="font-family:monospace;font-weight:800;" />
+            <div id="new-pc-room-hint" style="font-size:11px;color:var(--royal);font-weight:700;margin-top:3px;">1 этаж → 1xx (напр. 105)</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Примечание (необяз.)</label>
+            <input id="new-pc-room-note" class="form-control" type="text" placeholder="Лаборатория / Класс" />
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="form-group">
+            <label class="form-label">Название ПК *</label>
+            <input id="new-pc-name" class="form-control" type="text" required placeholder="ПК №01" value="ПК №01" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Инв. номер *</label>
+            <input id="new-pc-id" class="form-control" type="text" required placeholder="PC-GL-105-01" style="font-family:monospace;text-transform:uppercase;" />
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="form-group">
+            <label class="form-label">Процессор (CPU)</label>
+            <input id="new-pc-cpu" class="form-control" type="text" placeholder="Intel Core i5-12400" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">ОЗУ (RAM)</label>
+            <input id="new-pc-ram" class="form-control" type="text" placeholder="16 GB DDR4" />
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="form-group">
+            <label class="form-label">Накопитель (SSD/HDD)</label>
+            <input id="new-pc-ssd" class="form-control" type="text" placeholder="512 GB NVMe SSD" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Видеокарта (GPU)</label>
+            <input id="new-pc-gpu" class="form-control" type="text" placeholder="Intel UHD 730" />
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="form-group">
+            <label class="form-label">ОС (OS)</label>
+            <input id="new-pc-os" class="form-control" type="text" placeholder="Windows 11 Pro" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Сеть / IP</label>
+            <input id="new-pc-net" class="form-control" type="text" placeholder="Ethernet 1Gbps • 10.10.15.01" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Установленные программы (через запятую)</label>
+          <input id="new-pc-sw" class="form-control" type="text" placeholder="MS Office 2021, Python 3.12, VS Code, Chrome" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Начальный статус</label>
+          <select id="new-pc-status" class="form-control">
+            <option value="working">🟢 Работает</option>
+            <option value="service_due">🟡 Требует ТО</option>
+            <option value="broken">🔴 В ремонте</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">
+          💾 <span id="lbl-save-new-pc">Сохранить ПК и создать QR-код</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       MODAL 4: SINGLE QR STICKER PREVIEW & PRINT
+       ===================================================================== -->
+  <div id="modal-sticker" class="modal-backdrop" onclick="closeOnBackdrop(event, 'modal-sticker')">
+    <div class="modal-box" style="max-width:400px;text-align:center;">
+      <div class="section-hdr">
+        <h2 style="font-size:17px;font-weight:800;">🏷️ QR-стикер оборудования</h2>
+        <button type="button" onclick="closeModal('modal-sticker')" style="width:32px;height:32px;border-radius:10px;background:#f1f5f9;font-weight:800;">✕</button>
+      </div>
+      <div id="single-sticker-preview"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;">
+        <button type="button" class="btn btn-dark" onclick="printSingleSticker()">🖨️ Печать QR</button>
+        <button type="button" class="btn btn-outline" onclick="downloadSingleStickerPng()">⬇ Скачать PNG</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       MODAL 5: CONFIRM DELETE PC (REPLACES BROWSER confirm())
+       ===================================================================== -->
+  <div id="modal-confirm-del" class="modal-backdrop" onclick="closeOnBackdrop(event, 'modal-confirm-del')">
+    <div class="modal-box" style="max-width:400px;text-align:center;">
+      <h3 style="font-size:18px;font-weight:800;margin-bottom:8px;">🗑️ Удалить устройство из реестра?</h3>
+      <p id="confirm-del-caption" style="font-size:13.5px;color:var(--text-secondary);margin-bottom:16px;"></p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <button type="button" class="btn btn-outline" onclick="closeModal('modal-confirm-del')">Отмена</button>
+        <button type="button" class="btn btn-danger" onclick="executeDeletePc()">Удалить ПК</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       MODAL 6: GENERATED MEMO SLIP POPUP (IMMEDIATE FEEDBACK FOR STUDENT)
+       ===================================================================== -->
+  <div id="modal-memo-slip" class="modal-backdrop" onclick="closeOnBackdrop(event, 'modal-memo-slip')">
+    <div class="modal-box" style="max-width:520px;">
+      <div class="section-hdr">
+        <h2 style="font-size:17px;font-weight:800;color:var(--emerald);">✅ Служебная записка зарегистрирована</h2>
+        <button type="button" onclick="closeModal('modal-memo-slip')" style="width:32px;height:32px;border-radius:10px;background:#f1f5f9;font-weight:800;">✕</button>
+      </div>
+      <div id="memo-slip-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       MODAL 7: INSTALL AS MOBILE APP (IPHONE iOS & ANDROID PWA)
+       ===================================================================== -->
+  <div id="modal-install-app" class="modal-backdrop" onclick="closeOnBackdrop(event, 'modal-install-app')">
+    <div class="modal-box" style="max-width:480px;">
+      <div class="section-hdr">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div id="pwa-icon-preview" style="width:44px;height:44px;border-radius:12px;overflow:hidden;flex-shrink:0;box-shadow:var(--shadow-sm);"></div>
+          <div>
+            <h2 id="pwa-modal-title" style="font-size:17px;font-weight:900;line-height:1.2;">📲 Установить OpsQR на телефон</h2>
+            <div id="pwa-modal-sub" style="font-size:12px;color:var(--text-muted);font-weight:700;">Работает как приложение на iPhone и Android без интернета</div>
+          </div>
+        </div>
+        <button type="button" onclick="closeModal('modal-install-app')" style="width:32px;height:32px;border-radius:10px;background:#f1f5f9;font-weight:800;">✕</button>
+      </div>
+
+      <div id="pwa-native-install-box" style="display:none;margin-bottom:12px;">
+        <button type="button" class="btn btn-emerald btn-block" onclick="triggerNativeAndroidInstall()">
+          ⚡ Установить приложение OpsQR в 1 клик
+        </button>
+      </div>
+
+      <div id="pwa-install-instructions"></div>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       EMBEDDED PURE-JS ISO-18004 QR GENERATOR + APPLICATION LOGIC
+       ===================================================================== -->
+  <script>
+    /* =========================================================================
+       A. SELF-CONTAINED ISO/IEC 18004 QR CODE ENGINE (VERSIONS 1-5, EC-L, MASK 0)
+       ========================================================================= */
+    const PureQR = (() => {
+      const EXP = new Uint8Array(512);
+      const LOG = new Uint8Array(256);
+      let v = 1;
+      for (let i = 0; i < 255; i++) {
+        EXP[i] = v;
+        LOG[v] = i;
+        v <<= 1;
+        if (v & 0x100) v ^= 0x11d;
+      }
+      for (let i = 255; i < 512; i++) {
+        EXP[i] = EXP[i - 255];
+      }
+
+      function gfMul(a, b) {
+        if (a === 0 || b === 0) return 0;
+        return EXP[LOG[a] + LOG[b]];
+      }
+
+      function rsGeneratorPoly(ecLen) {
+        let poly = [1];
+        for (let i = 0; i < ecLen; i++) {
+          const next = new Array(poly.length + 1).fill(0);
+          const factor = EXP[i];
+          for (let j = 0; j < poly.length; j++) {
+            next[j] ^= poly[j];
+            next[j + 1] ^= gfMul(poly[j], factor);
+          }
+          poly = next;
+        }
+        return poly;
+      }
+
+      function rsEncode(data, ecLen) {
+        const gen = rsGeneratorPoly(ecLen);
+        const res = new Array(data.length + ecLen).fill(0);
+        for (let i = 0; i < data.length; i++) res[i] = data[i];
+        for (let i = 0; i < data.length; i++) {
+          const coef = res[i];
+          if (coef !== 0) {
+            for (let j = 0; j < gen.length; j++) {
+              res[i + j] ^= gfMul(gen[j], coef);
+            }
+          }
+        }
+        return res.slice(data.length);
+      }
+
+      // Versions 1..5 at Error Correction Level L (Single Block)
+      const VERSIONS = [
+        null,
+        { size: 21, total: 26, data: 19, ec: 7, align: [] },
+        { size: 25, total: 44, data: 34, ec: 10, align: [6, 18] },
+        { size: 29, total: 70, data: 55, ec: 15, align: [6, 22] },
+        { size: 33, total: 100, data: 80, ec: 20, align: [6, 26] },
+        { size: 37, total: 134, data: 108, ec: 26, align: [6, 30] }
+      ];
+
+      function utf8Bytes(str) {
+        const out = [];
+        for (let i = 0; i < str.length; i++) {
+          let code = str.charCodeAt(i);
+          if (code < 0x80) {
+            out.push(code);
+          } else if (code < 0x800) {
+            out.push(0xc0 | (code >> 6), 0x80 | (code & 0x3f));
+          } else {
+            out.push(0xe0 | (code >> 12), 0x80 | ((code >> 6) & 0x3f), 0x80 | (code & 0x3f));
+          }
+        }
+        return out;
+      }
+
+      function buildMatrix(text) {
+        const bytes = utf8Bytes(String(text));
+        let ver = 1;
+        while (ver <= 5 && bytes.length + 2 > VERSIONS[ver].data) {
+          ver++;
+        }
+        if (ver > 5) ver = 5;
+        const spec = VERSIONS[ver];
+        const maxPayload = spec.data - 2;
+        const payload = bytes.slice(0, maxPayload);
+
+        // Bit stream: Byte mode (0100) + 8-bit length + payload + terminator
+        const bits = [];
+        const pushBits = (val, len) => {
+          for (let i = len - 1; i >= 0; i--) bits.push((val >> i) & 1);
+        };
+        pushBits(0b0100, 4);
+        pushBits(payload.length, 8);
+        for (const b of payload) pushBits(b, 8);
+        for (let i = 0; i < 4 && bits.length < spec.data * 8; i++) bits.push(0);
+        while (bits.length % 8 !== 0) bits.push(0);
+
+        const dataCW = [];
+        for (let i = 0; i < bits.length; i += 8) {
+          let byte = 0;
+          for (let b = 0; b < 8; b++) byte = (byte << 1) | bits[i + b];
+          dataCW.push(byte);
+        }
+        const pads = [0xec, 0x11];
+        let pIdx = 0;
+        while (dataCW.length < spec.data) {
+          dataCW.push(pads[pIdx % 2]);
+          pIdx++;
+        }
+
+        const ecCW = rsEncode(dataCW, spec.ec);
+        const allCW = dataCW.concat(ecCW);
+        const bitStream = [];
+        for (const cw of allCW) {
+          for (let b = 7; b >= 0; b--) bitStream.push((cw >> b) & 1);
+        }
+
+        const N = spec.size;
+        const mod = Array.from({ length: N }, () => new Int8Array(N).fill(-1));
+        const func = Array.from({ length: N }, () => new Uint8Array(N).fill(0));
+
+        const setFunc = (r, c, val) => {
+          if (r >= 0 && r < N && c >= 0 && c < N) {
+            mod[r][c] = val ? 1 : 0;
+            func[r][c] = 1;
+          }
+        };
+
+        const placeFinder = (row, col) => {
+          for (let r = -1; r <= 7; r++) {
+            for (let c = -1; c <= 7; c++) {
+              const rr = row + r;
+              const cc = col + c;
+              if (rr < 0 || rr >= N || cc < 0 || cc >= N) continue;
+              const inOuter = r >= 0 && r <= 6 && c >= 0 && c <= 6;
+              const inBorder = r === 0 || r === 6 || c === 0 || c === 6;
+              const inCore = r >= 2 && r <= 4 && c >= 2 && c <= 4;
+              setFunc(rr, cc, inOuter && (inBorder || inCore) ? 1 : 0);
+            }
+          }
+        };
+
+        placeFinder(0, 0);
+        placeFinder(0, N - 7);
+        placeFinder(N - 7, 0);
+
+        // Alignment patterns
+        if (spec.align.length > 0) {
+          for (const ar of spec.align) {
+            for (const ac of spec.align) {
+              if (func[ar][ac]) continue;
+              for (let r = -2; r <= 2; r++) {
+                for (let c = -2; c <= 2; c++) {
+                  const dark = Math.abs(r) === 2 || Math.abs(c) === 2 || (r === 0 && c === 0);
+                  setFunc(ar + r, ac + c, dark ? 1 : 0);
+                }
+              }
+            }
+          }
+        }
+
+        // Timing patterns
+        for (let i = 8; i < N - 8; i++) {
+          if (!func[6][i]) setFunc(6, i, i % 2 === 0 ? 1 : 0);
+          if (!func[i][6]) setFunc(i, 6, i % 2 === 0 ? 1 : 0);
+        }
+
+        // Dark module
+        setFunc(N - 8, 8, 1);
+
+        // Reserve format info bits
+        for (let i = 0; i < 9; i++) {
+          if (!func[8][i]) func[8][i] = 1;
+          if (!func[i][8]) func[i][8] = 1;
+        }
+        for (let i = 0; i < 8; i++) {
+          func[8][N - 1 - i] = 1;
+          func[N - 1 - i][8] = 1;
+        }
+
+        // Place data bits in zig-zag columns + Mask 0 ((r + c) % 2 === 0)
+        let bitIdx = 0;
+        let up = true;
+        for (let right = N - 1; right >= 1; right -= 2) {
+          if (right === 6) right = 5;
+          for (let step = 0; step < N; step++) {
+            const r = up ? N - 1 - step : step;
+            for (let dx = 0; dx < 2; dx++) {
+              const c = right - dx;
+              if (!func[r][c]) {
+                const rawBit = bitIdx < bitStream.length ? bitStream[bitIdx++] : 0;
+                const maskBit = (r + c) % 2 === 0 ? 1 : 0;
+                mod[r][c] = rawBit ^ maskBit;
+              }
+            }
+          }
+          up = !up;
+        }
+
+        // Write 15-bit format info (EC Level L + Mask 0 = 0x77C4)
+        const FMT = 0x77c4;
+        const fBits = [];
+        for (let i = 14; i >= 0; i--) fBits.push((FMT >> i) & 1);
+
+        const coords1 = [
+          [8, 0], [8, 1], [8, 2], [8, 3], [8, 4], [8, 5], [8, 7], [8, 8],
+          [7, 8], [5, 8], [4, 8], [3, 8], [2, 8], [1, 8], [0, 8]
+        ];
+        const coords2 = [
+          [N - 1, 8], [N - 2, 8], [N - 3, 8], [N - 4, 8], [N - 5, 8], [N - 6, 8], [N - 7, 8],
+          [8, N - 8], [8, N - 7], [8, N - 6], [8, N - 5], [8, N - 4], [8, N - 3], [8, N - 2], [8, N - 1]
+        ];
+        for (let i = 0; i < 15; i++) {
+          mod[coords1[i][0]][coords1[i][1]] = fBits[i];
+          mod[coords2[i][0]][coords2[i][1]] = fBits[i];
+        }
+
+        return mod;
+      }
+
+      function drawToCanvas(canvas, text, pxSize = 160) {
+        if (!canvas) return;
+        const mat = buildMatrix(text);
+        const n = mat.length;
+        const quiet = 2;
+        const total = n + quiet * 2;
+        const scale = Math.max(2, Math.floor(pxSize / total));
+        const realSize = total * scale;
+        canvas.width = realSize;
+        canvas.height = realSize;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, realSize, realSize);
+        ctx.fillStyle = '#0f172a';
+        for (let r = 0; r < n; r++) {
+          for (let c = 0; c < n; c++) {
+            if (mat[r][c] === 1) {
+              ctx.fillRect((c + quiet) * scale, (r + quiet) * scale, scale, scale);
+            }
+          }
+        }
+      }
+
+      function toDataURL(text, pxSize = 180) {
+        const c = document.createElement('canvas');
+        drawToCanvas(c, text, pxSize);
+        return c.toDataURL('image/png');
+      }
+
+      return { drawToCanvas, toDataURL };
+    })();
+
+    /* =========================================================================
+       B. TRANSLATIONS (RU / KZ) & CAMPUS ARCHITECTURE
+       ========================================================================= */
+    const I18N = {
+      ru: {
+        offlineChip: '● Offline Ready',
+        installBtn: 'Приложение',
+        installedChip: 'App Mode',
+        hdrSubtitle: 'Электронный паспорт оборудования',
+        staffLoginBtn: 'Вход для сотрудников',
+        staffBadge: 'ИТ-инженер',
+        logoutBtn: 'Выйти',
+        navRegistry: 'Реестр ПК и QR',
+        navPassport: 'Паспорт и ПО',
+        navInventory: 'Инвентаризация',
+        navMemos: 'Записки',
+        scannerTag: 'QR-СКАНЕР ОБОРУДОВАНИЯ • БЕЗ РЕГИСТРАЦИИ',
+        scannerTitle: 'Отсканируйте QR-код на компьютере',
+        scannerDesc: 'Наведите камеру телефона на QR-стикер системного блока или монитора, чтобы открыть электронный паспорт ПК и сообщить о неисправности.',
+        startCamBtn: 'Включить камеру для сканирования',
+        stopCamBtn: 'Остановить камеру',
+        manualLookupPlaceholder: 'Или введите код с наклейки (напр. PC-GL-104-01)',
+        manualLookupBtn: 'Открыть паспорт',
+        backToScanner: '← Сканировать другой QR-код',
+        status_working: '🟢 Работает',
+        status_service_due: '🟡 Требует ТО',
+        status_broken: '🔴 В ремонте',
+        specsTitle: 'Комплектующие и конфигурация',
+        swTitle: 'Установленные программы (ПО)',
+        logsTitle: 'Журнал ТО и ремонтов',
+        reportBtn: 'Сообщить о проблеме с ПК',
+        allBuildings: 'Все корпуса',
+        allFloors: 'Все этажи',
+        allRooms: 'Все кабинеты',
+        allStatuses: 'Все статусы',
+        floorSuffix: 'этаж',
+        roomPrefix: 'Каб.'
+      },
+      kz: {
+        offlineChip: '● Автономды режим',
+        installBtn: 'Қосымша',
+        installedChip: 'App Mode',
+        hdrSubtitle: 'Жабдықтың электронды паспорты',
+        staffLoginBtn: 'Қызметкерлерге кіру',
+        staffBadge: 'ИТ-инженер',
+        logoutBtn: 'Шығу',
+        navRegistry: 'ДК тізілімі және QR',
+        navPassport: 'Паспорт және БҚ',
+        navInventory: 'Түгендеу',
+        navMemos: 'Қызметтік жазбалар',
+        scannerTag: 'ЖАБДЫҚ QR-СКАНЕРІ • ТІРКЕУСІЗ',
+        scannerTitle: 'Компьютердегі QR-кодты сканерлеңіз',
+        scannerDesc: 'ДК-нің электронды паспортын ашу және ақау туралы хабарлау үшін телефон камерасын QR-жапсырмаға бағыттаңыз.',
+        startCamBtn: 'Сканерлеу үшін камераны қосу',
+        stopCamBtn: 'Камераны өшіру',
+        manualLookupPlaceholder: 'Немесе жапсырма кодын енгізіңіз (мыс. PC-GL-104-01)',
+        manualLookupBtn: 'Паспортты ашу',
+        backToScanner: '← Басқа QR-кодты сканерлеу',
+        status_working: '🟢 Жұмыс істеп тұр',
+        status_service_due: '🟡 ТҚК қажет',
+        status_broken: '🔴 Жөндеуде',
+        specsTitle: 'Құрамдас бөліктер мен конфигурация',
+        swTitle: 'Орнатылған бағдарламалар (БҚ)',
+        logsTitle: 'ТҚК және жөндеу журналы',
+        reportBtn: 'ДК ақауы туралы хабарлау',
+        allBuildings: 'Барлық корпустар',
+        allFloors: 'Барлық қабаттар',
+        allRooms: 'Барлық кабинеттер',
+        allStatuses: 'Барлық мәртебелер',
+        floorSuffix: 'қабат',
+        roomPrefix: 'Каб.'
+      }
+    };
+
+    const BUILDING_FLOORS = {
+      'Главный корпус': 4,
+      '1 корпус': 6,
+      '2 корпус': 6,
+      '4 корпус': 4
+    };
+
+    const BUILDING_CODES = {
+      'Главный корпус': 'GL',
+      '1 корпус': '1K',
+      '2 корпус': '2K',
+      '4 корпус': '4K'
+    };
+
+    const QUICK_SOFTWARE_CATALOG = [
+      'ИРБИС64',
+      'MS Office 2021',
+      'Python 3.12',
+      'VS Code',
+      'Cisco Packet Tracer',
+      'Kaspersky Endpoint',
+      '7-Zip',
+      'Google Chrome',
+      'AutoCAD 2025',
+      '1С:Предприятие 8.3'
+    ];
+
+    const ISSUE_TEMPLATES = [
+      'Не включается компьютер / нет изображения на мониторе',
+      'Сильно тормозит система или зависает при запуске ПО',
+      'Нет подключения к интернету / локальной сети',
+      'Не работает клавиатура или компьютерная мышь',
+      'Не запускается учебная программа (Python / Office / ИРБИС)',
+      'Посторонний шум вентилятора или перегрев корпуса'
+    ];
+
+    /* =========================================================================
+       C. INITIAL DATASET & PERSISTENT LOCALSTORAGE STATE
+       ========================================================================= */
+    const STORAGE_KEY = 'opsqr_offline_state_v6';
+
+    const INITIAL_PCS = [
+      {
+        id: 'PC-GL-104-01',
+        name: 'ПК №01 (Читальный зал)',
+        building: 'Главный корпус',
+        floor: 1,
+        room: '104',
+        roomNote: 'Читальный зал библиотеки',
+        status: 'working',
+        specs: {
+          cpu: 'Intel Core i5-12400',
+          ram: '16 GB DDR4',
+          ssd: '512 GB NVMe SSD',
+          gpu: 'Intel UHD Graphics 730',
+          os: 'Windows 11 Pro',
+          net: 'Ethernet 1Gbps • 10.10.14.11'
+        },
+        software: ['ИРБИС64', 'MS Office 2021', 'Google Chrome', 'Kaspersky Endpoint', '7-Zip'],
+        logs: [
+          { date: '15.10.2026', type: 'ТО / ТҚК', desc: 'Плановая продувка системного блока от пыли, проверка SMART SSD', master: 'ИТ-инженер Азамат К.' },
+          { date: '02.09.2026', type: 'ПО / БҚ', desc: 'Обновление каталога ИРБИС64 и антивирусных баз Kaspersky', master: 'Администратор БД Данияр М.' }
+        ],
+        lastInventoryDate: '20.11.2026'
+      },
+      {
+        id: 'PC-GL-402-05',
+        name: 'ПК №05 (Цифровой деканат)',
+        building: 'Главный корпус',
+        floor: 4,
+        room: '402',
+        roomNote: 'Методический кабинет',
+        status: 'service_due',
+        specs: {
+          cpu: 'Intel Core i5-10400',
+          ram: '8 GB DDR4',
+          ssd: '256 GB SATA SSD',
+          gpu: 'Intel UHD Graphics 630',
+          os: 'Windows 10 Pro',
+          net: 'Ethernet 1Gbps • 10.10.42.05'
+        },
+        software: ['MS Office 2021', '1С:Предприятие 8.3', 'Google Chrome', 'Kaspersky Endpoint'],
+        logs: [
+          { date: '10.05.2026', type: 'ТО / ТҚК', desc: 'Замена термопасты CPU, рекомендуется апгрейд ОЗУ до 16 ГБ', master: 'ИТ-инженер Азамат К.' }
+        ],
+        lastInventoryDate: ''
+      },
+      {
+        id: 'PC-1K-205-12',
+        name: 'ПК №12 (Класс программирования)',
+        building: '1 корпус',
+        floor: 2,
+        room: '205',
+        roomNote: 'Компьютерный класс ИТ',
+        status: 'working',
+        specs: {
+          cpu: 'AMD Ryzen 5 5600G',
+          ram: '16 GB DDR4',
+          ssd: '512 GB NVMe SSD',
+          gpu: 'Radeon Vega 7',
+          os: 'Windows 11 Pro',
+          net: 'Ethernet 1Gbps • 10.11.25.12'
+        },
+        software: ['Python 3.12', 'VS Code', 'Git', 'MS Office 2021', 'Google Chrome'],
+        logs: [
+          { date: '12.10.2026', type: 'ПО / БҚ', desc: 'Установка Python 3.12 и расширений VS Code для лабораторных работ', master: 'Лаборант Ерлан С.' }
+        ],
+        lastInventoryDate: '20.11.2026'
+      },
+      {
+        id: 'PC-1K-603-04',
+        name: 'ПК №04 (Лаборатория ИИ)',
+        building: '1 корпус',
+        floor: 6,
+        room: '603',
+        roomNote: 'Лаборатория нейросетей',
+        status: 'working',
+        specs: {
+          cpu: 'Intel Core i7-13700',
+          ram: '32 GB DDR5',
+          ssd: '1 TB NVMe SSD',
+          gpu: 'NVIDIA RTX 4060 8GB',
+          os: 'Windows 11 Pro',
+          net: 'Ethernet 2.5Gbps • 10.11.63.04'
+        },
+        software: ['Python 3.12', 'VS Code', 'Anaconda', 'CUDA Toolkit', 'Google Chrome'],
+        logs: [
+          { date: '01.11.2026', type: 'ТО / ТҚК', desc: 'Проверка системы охлаждения GPU под нагрузкой', master: 'ИТ-инженер Азамат К.' }
+        ],
+        lastInventoryDate: '20.11.2026'
+      },
+      {
+        id: 'PC-2K-310-08',
+        name: 'ПК №08 (Сети и телекоммуникации)',
+        building: '2 корпус',
+        floor: 3,
+        room: '310',
+        roomNote: 'Лаборатория Cisco',
+        status: 'broken',
+        specs: {
+          cpu: 'Intel Core i5-11400',
+          ram: '16 GB DDR4',
+          ssd: '512 GB NVMe SSD',
+          gpu: 'Intel UHD 730',
+          os: 'Windows 10 Pro',
+          net: 'Ethernet 1Gbps • 10.12.30.08'
+        },
+        software: ['Cisco Packet Tracer', 'Wireshark', 'PuTTY', 'MS Office 2021', 'Google Chrome'],
+        logs: [
+          { date: '25.11.2026', type: 'Заявка / Ақау', desc: 'Не определяется сетевой адаптер Ethernet (в работе)', master: 'Ожидает инженера' }
+        ],
+        lastInventoryDate: ''
+      },
+      {
+        id: 'PC-2K-514-02',
+        name: 'ПК №02 (Инженерная графика)',
+        building: '2 корпус',
+        floor: 5,
+        room: '514',
+        roomNote: 'Класс САПР и 3D',
+        status: 'working',
+        specs: {
+          cpu: 'Intel Core i7-12700',
+          ram: '32 GB DDR4',
+          ssd: '1 TB NVMe SSD',
+          gpu: 'NVIDIA RTX 3060 12GB',
+          os: 'Windows 11 Pro',
+          net: 'Ethernet 1Gbps • 10.12.54.02'
+        },
+        software: ['AutoCAD 2025', 'КОМПАС-3D', 'MS Office 2021', '7-Zip', 'Google Chrome'],
+        logs: [
+          { date: '18.09.2026', type: 'ПО / БҚ', desc: 'Активация учебной лицензии AutoCAD 2025', master: 'Лаборант Ерлан С.' }
+        ],
+        lastInventoryDate: '20.11.2026'
+      },
+      {
+        id: 'PC-4K-108-03',
+        name: 'ПК №03 (Экономический класс)',
+        building: '4 корпус',
+        floor: 1,
+        room: '108',
+        roomNote: 'Класс бухучёта и 1С',
+        status: 'working',
+        specs: {
+          cpu: 'Intel Core i3-12100',
+          ram: '16 GB DDR4',
+          ssd: '256 GB NVMe SSD',
+          gpu: 'Intel UHD 730',
+          os: 'Windows 10 Pro',
+          net: 'Ethernet 1Gbps • 10.14.18.03'
+        },
+        software: ['1С:Предприятие 8.3', 'MS Office 2021', 'Kaspersky Endpoint', 'Google Chrome'],
+        logs: [
+          { date: '05.10.2026', type: 'ТО / ТҚК', desc: 'Чистка от пыли, проверка сетевого доступа к серверу 1С', master: 'ИТ-инженер Азамат К.' }
+        ],
+        lastInventoryDate: ''
+      },
+      {
+        id: 'PC-4K-411-09',
+        name: 'ПК №09 (Лингафонный кабинет)',
+        building: '4 корпус',
+        floor: 4,
+        room: '411',
+        roomNote: 'Мультимедиа лаборатория',
+        status: 'working',
+        specs: {
+          cpu: 'AMD Ryzen 5 4600G',
+          ram: '16 GB DDR4',
+          ssd: '512 GB NVMe SSD',
+          gpu: 'Radeon Graphics',
+          os: 'Windows 11 Pro',
+          net: 'Ethernet 1Gbps • 10.14.41.09'
+        },
+        software: ['MS Office 2021', 'VLC Media Player', 'Google Chrome', '7-Zip'],
+        logs: [
+          { date: '14.09.2026', type: 'ТО / ТҚК', desc: 'Проверка аудиоинтерфейсов и гарнитур перед семестром', master: 'Лаборант Ерлан С.' }
+        ],
+        lastInventoryDate: ''
+      }
+    ];
+
+    const INITIAL_MEMOS = [
+      {
+        memoNumber: 'СЗ-2026-014',
+        pcId: 'PC-2K-310-08',
+        pcName: 'ПК №08 (Сети и телекоммуникации)',
+        location: '2 корпус, 3 этаж, каб. 310',
+        specsSummary: 'Intel Core i5-11400 / 16 GB RAM / 512 GB SSD',
+        description: 'Не подключается к интернету / локальной сети — горит красный крестик на значке сети.',
+        sender: 'Студент группы ИС-22-1 (Алишер Т.)',
+        createdAt: '25.11.2026, 14:20',
+        status: 'open'
+      }
+    ];
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && Array.isArray(parsed.pcs) && parsed.pcs.length > 0 && Array.isArray(parsed.memos)) {
+            return parsed;
+          }
+        }
+      } catch (e) {}
+      return {
+        pcs: JSON.parse(JSON.stringify(INITIAL_PCS)),
+        memos: JSON.parse(JSON.stringify(INITIAL_MEMOS))
+      };
+    }
+
+    let appData = loadState();
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+      } catch (e) {}
+    }
+
+    /* =========================================================================
+       D. UI RUNTIME STATE
+       ========================================================================= */
+    let lang = 'ru';
+    let isStaff = false;
+    let staffTab = 'registry'; // 'registry' | 'passport' | 'inventory' | 'memos'
+    let scannedPcId = null;    // Currently viewed PC in student mode
+    let staffSelectedPcId = appData.pcs[0] ? appData.pcs[0].id : null;
+    let editingSwIdx = null;   // Index of software item being edited inline
+
+    // Cascade filters for Registry & Inventory
+    let filterBuilding = 'ALL';
+    let filterFloor = 'ALL';
+    let filterRoom = 'ALL';
+    let filterStatus = 'ALL';
+    let filterSearch = '';
+
+    // Stealth presentation demo toggle (hidden by default!)
+    let stealthDemoOpen = false;
+
+    // Active modal targets
+    let reportTargetPcId = null;
+    let selectedIssueChip = '';
+    let stickerTargetPcId = null;
+    let deleteTargetPcId = null;
+
+    // Camera scanner stream
+    let cameraStream = null;
+    let scanTimer = null;
+
+    function t(key) {
+      return (I18N[lang] && I18N[lang][key]) || I18N.ru[key] || key;
+    }
+
+    function escapeHtml(str) {
+      return String(str == null ? '' : str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function formatToday() {
+      const d = new Date();
+      const dd = String(d.getDate()).padStart(2, '0');
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const yyyy = d.getFullYear();
+      return `${dd}.${mm}.${yyyy}`;
+    }
+
+    function formatNow() {
+      const d = new Date();
+      const hh = String(d.getHours()).padStart(2, '0');
+      const min = String(d.getMinutes()).padStart(2, '0');
+      return `${formatToday()}, ${hh}:${min}`;
+    }
+
+    function getQrPayload(pc) {
+      return `OPSQR|${pc.id}|${pc.building}|${pc.room}`;
+    }
+
+    function showToast(msg) {
+      const el = document.getElementById('toast');
+      if (!el) return;
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(el._hideTimer);
+      el._hideTimer = setTimeout(() => {
+        el.classList.remove('show');
+      }, 3400);
+    }
+
+    /* =========================================================================
+       E. STEALTH BOTTOM-LEFT TRIGGER FOR PRESENTATION DEMO
+       ========================================================================= */
+    function toggleStealthDemo() {
+      triggerHaptic();
+      stealthDemoOpen = !stealthDemoOpen;
+      const loginDemoBox = document.getElementById('login-stealth-box');
+      if (loginDemoBox) {
+        loginDemoBox.style.display = stealthDemoOpen ? 'block' : 'none';
+      }
+      renderAll();
+    }
+
+    /* =========================================================================
+       F. NAVIGATION, LANGUAGE & AUTHENTICATION
+       ========================================================================= */
+    function setLang(newLang) {
+      lang = newLang;
+      document.getElementById('btn-ru').classList.toggle('active', lang === 'ru');
+      document.getElementById('btn-kz').classList.toggle('active', lang === 'kz');
+      renderAll();
+    }
+
+    function openModal(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.add('open');
+    }
+
+    function closeModal(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('open');
+    }
+
+    function closeOnBackdrop(event, id) {
+      if (event.target && event.target.id === id) {
+        closeModal(id);
+      }
+    }
+
+    function openStaffLoginModal() {
+      document.getElementById('login-err').style.display = 'none';
+      document.getElementById('inp-staff-user').value = '';
+      document.getElementById('inp-staff-pass').value = '';
+      const loginDemoBox = document.getElementById('login-stealth-box');
+      if (loginDemoBox) {
+        loginDemoBox.style.display = stealthDemoOpen ? 'block' : 'none';
+      }
+      openModal('modal-login');
+    }
+
+    function submitStaffLogin(e) {
+      e.preventDefault();
+      const u = document.getElementById('inp-staff-user').value.trim().toLowerCase();
+      const p = document.getElementById('inp-staff-pass').value.trim();
+      if ((u === 'admin' && p === 'admin2026') || (u === 'engineer' && p === '1234')) {
+        stopCameraScanner();
+        isStaff = true;
+        staffTab = 'registry';
+        closeModal('modal-login');
+        showToast('✅ Вход выполнен: Режим ИТ-сотрудника');
+        renderAll();
+      } else {
+        const err = document.getElementById('login-err');
+        err.textContent = '❌ Неверный логин или пароль. Попробуйте: admin / admin2026';
+        err.style.display = 'block';
+      }
+    }
+
+    function quickDemoStaffLogin() {
+      stopCameraScanner();
+      isStaff = true;
+      staffTab = 'registry';
+      closeModal('modal-login');
+      showToast('⚡ Демо-вход ИТ-сотрудника выполнен');
+      renderAll();
+    }
+
+    function logoutStaff() {
+      isStaff = false;
+      scannedPcId = null;
+      editingSwIdx = null;
+      showToast('Вы вышли из режима сотрудника');
+      renderAll();
+    }
+
+    function switchStaffTab(tab) {
+      staffTab = tab;
+      editingSwIdx = null;
+      renderAll();
+    }
+
+    /* =========================================================================
+       G. MASTER RENDER FUNCTION
+       ========================================================================= */
+    function renderAll() {
+      // Update Header
+      document.getElementById('hdr-offline-chip').textContent = t('offlineChip');
+      document.getElementById('hdr-subtitle').textContent = t('hdrSubtitle');
+      const installBtnLbl = document.getElementById('lbl-install-btn');
+      if (installBtnLbl) {
+        installBtnLbl.textContent = isStandaloneApp() ? t('installedChip') : t('installBtn');
+      }
+
+      const authSlot = document.getElementById('header-auth-slot');
+      if (isStaff) {
+        authSlot.innerHTML = `
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="font-size:11.5px;font-weight:800;color:#93c5fd;background:rgba(37,99,235,0.25);padding:6px 9px;border-radius:9px;border:1px solid rgba(96,165,250,0.4);">
+              🛠️ ${escapeHtml(t('staffBadge'))}
+            </span>
+            <button type="button" class="staff-entry-btn" style="background:rgba(239,68,68,0.22);border-color:rgba(248,113,113,0.45);color:#fecaca;" onclick="logoutStaff()">
+              ${escapeHtml(t('logoutBtn'))}
+            </button>
+          </div>
+        `;
+      } else {
+        authSlot.innerHTML = `
+          <button type="button" class="staff-entry-btn" onclick="openStaffLoginModal()">
+            🔐 <span>${escapeHtml(t('staffLoginBtn'))}</span>
+          </button>
+        `;
+      }
+
+      // Staff Navigation Bar
+      const navWrap = document.getElementById('staff-nav-container');
+      if (isStaff) {
+        navWrap.style.display = 'block';
+        document.getElementById('nav-txt-registry').textContent = t('navRegistry');
+        document.getElementById('nav-txt-passport').textContent = t('navPassport');
+        document.getElementById('nav-txt-inventory').textContent = t('navInventory');
+        document.getElementById('nav-txt-memos').textContent = t('navMemos');
+
+        ['registry', 'passport', 'inventory', 'memos'].forEach(key => {
+          const btn = document.getElementById(`tab-btn-${key}`);
+          if (btn) btn.classList.toggle('active', staffTab === key);
+        });
+
+        const openMemosCount = appData.memos.filter(m => m.status === 'open').length;
+        const badge = document.getElementById('nav-memo-badge');
+        if (openMemosCount > 0) {
+          badge.style.display = 'inline-block';
+          badge.textContent = String(openMemosCount);
+        } else {
+          badge.style.display = 'none';
+        }
+      } else {
+        navWrap.style.display = 'none';
+      }
+
+      // Main Content Area
+      const main = document.getElementById('main-content');
+      if (!isStaff) {
+        if (scannedPcId) {
+          renderStudentPassportView(main, scannedPcId);
+        } else {
+          renderStudentScannerView(main);
+        }
+      } else {
+        if (staffTab === 'registry') renderRegistryTab(main);
+        else if (staffTab === 'passport') renderStaffPassportTab(main);
+        else if (staffTab === 'inventory') renderInventoryTab(main);
+        else if (staffTab === 'memos') renderMemosTab(main);
+      }
+    }
+
+    /* =========================================================================
+       H. STUDENT VIEW 1: QR SCANNER (NO REGISTRATION, NO FULL PC LIST)
+       ========================================================================= */
+    function renderStudentScannerView(container) {
+      let stealthHtml = '';
+      if (stealthDemoOpen) {
+        const cards = appData.pcs.map(pc => `
+          <button type="button" class="demo-qr-card" onclick="openScannedPc('${escapeHtml(pc.id)}')">
+            <canvas id="demo-qr-${escapeHtml(pc.id)}" width="110" height="110" style="width:96px;height:96px;border-radius:8px;"></canvas>
+            <div class="demo-qr-id">${escapeHtml(pc.id)}</div>
+            <div class="demo-qr-title">${escapeHtml(pc.building)}, ${pc.floor} эт., каб. ${escapeHtml(pc.room)}</div>
+            <span class="badge badge-${pc.status}" style="font-size:10.5px;padding:2px 7px;">${escapeHtml(t('status_' + pc.status))}</span>
+          </button>
+        `).join('');
+
+        stealthHtml = `
+          <div class="card" style="border:2px dashed var(--royal-bright);background:var(--royal-soft);">
+            <div class="section-hdr">
+              <div>
+                <div class="section-title" style="color:var(--royal);">🎯 Быстрое демо-сканирование (нажмите на QR-стикер ПК)</div>
+                <div style="font-size:12px;color:var(--text-secondary);">Режим презентации: выберите любой QR-код для мгновенного открытия паспорта</div>
+              </div>
+              <button type="button" class="btn btn-sm btn-primary" onclick="quickDemoStaffLogin()">⚡ Демо-вход сотрудника</button>
+            </div>
+            <div class="demo-qr-grid">${cards}</div>
+          </div>
+        `;
+      }
+
+      container.innerHTML = `
+        <div class="scanner-hero">
+          <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(56,189,248,0.16);border:1px solid rgba(56,189,248,0.35);color:#7dd3fc;font-size:11px;font-weight:800;padding:4px 10px;border-radius:999px;margin-bottom:10px;">
+            📷 ${escapeHtml(t('scannerTag'))}
+          </div>
+          <h1 style="font-size:21px;font-weight:900;line-height:1.25;margin-bottom:6px;">${escapeHtml(t('scannerTitle'))}</h1>
+          <p style="font-size:13.5px;color:#cbd5e1;margin-bottom:14px;">${escapeHtml(t('scannerDesc'))}</p>
+
+          <div class="camera-frame" id="camera-frame">
+            <video id="qr-video" playsinline muted></video>
+            <div class="scan-box-overlay" id="scan-overlay">
+              <div class="scan-laser"></div>
+            </div>
+            <div id="camera-placeholder" style="color:#94a3b8;font-size:13px;">
+              <div style="font-size:36px;margin-bottom:8px;">📱</div>
+              <div>Камера готова к сканированию QR-кода на ПК</div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:12px;">
+            <button type="button" id="btn-cam-toggle" class="btn btn-primary" onclick="toggleCameraScanner()">
+              📷 ${escapeHtml(t('startCamBtn'))}
+            </button>
+          </div>
+
+          <form onsubmit="handleManualCodeLookup(event)" style="display:flex;gap:8px;max-width:440px;margin:14px auto 0;">
+            <input id="manual-pc-code" class="form-control" type="text" placeholder="${escapeHtml(t('manualLookupPlaceholder'))}" style="background:rgba(255,255,255,0.96);font-family:monospace;font-weight:700;" />
+            <button type="submit" class="btn btn-emerald" style="white-space:nowrap;">${escapeHtml(t('manualLookupBtn'))}</button>
+          </form>
+        </div>
+
+        ${stealthHtml}
+      `;
+
+      if (stealthDemoOpen) {
+        appData.pcs.forEach(pc => {
+          const canvas = document.getElementById(`demo-qr-${pc.id}`);
+          if (canvas) PureQR.drawToCanvas(canvas, getQrPayload(pc), 120);
+        });
+      }
+    }
+
+    async function toggleCameraScanner() {
+      if (cameraStream) {
+        stopCameraScanner();
+        return;
+      }
+      const video = document.getElementById('qr-video');
+      const placeholder = document.getElementById('camera-placeholder');
+      const overlay = document.getElementById('scan-overlay');
+      const btn = document.getElementById('btn-cam-toggle');
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        showToast('⚠️ Камера недоступна в этом браузере. Введите инвентарный код вручную.');
+        return;
+      }
+
+      try {
+        cameraStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment' }
+        });
+        video.srcObject = cameraStream;
+        await video.play();
+        video.style.display = 'block';
+        overlay.style.display = 'block';
+        placeholder.style.display = 'none';
+        if (btn) btn.innerHTML = `⏹ ${escapeHtml(t('stopCamBtn'))}`;
+
+        if ('BarcodeDetector' in window) {
+          const detector = new BarcodeDetector({ formats: ['qr_code'] });
+          scanTimer = setInterval(async () => {
+            try {
+              const codes = await detector.detect(video);
+              if (codes && codes.length > 0) {
+                const rawVal = codes[0].rawValue || '';
+                const matchedId = extractPcIdFromQr(rawVal);
+                if (matchedId) {
+                  triggerHaptic();
+                  stopCameraScanner();
+                  openScannedPc(matchedId);
+                }
+              }
+            } catch (e) {}
+          }, 450);
+        } else {
+          showToast('📷 Камера включена. Если автодетект недоступен, введите код с наклейки.');
+        }
+      } catch (err) {
+        showToast('⚠️ Нет доступа к камере. Разрешите камеру или введите код ПК вручную.');
+      }
+    }
+
+    function stopCameraScanner() {
+      if (scanTimer) {
+        clearInterval(scanTimer);
+        scanTimer = null;
+      }
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream = null;
+      }
+      const video = document.getElementById('qr-video');
+      const placeholder = document.getElementById('camera-placeholder');
+      const overlay = document.getElementById('scan-overlay');
+      const btn = document.getElementById('btn-cam-toggle');
+      if (video) video.style.display = 'none';
+      if (overlay) overlay.style.display = 'none';
+      if (placeholder) placeholder.style.display = 'block';
+      if (btn) btn.innerHTML = `📷 ${escapeHtml(t('startCamBtn'))}`;
+    }
+
+    function extractPcIdFromQr(rawText) {
+      const clean = String(rawText || '').trim().toUpperCase();
+      if (clean.startsWith('OPSQR|')) {
+        const parts = clean.split('|');
+        return parts[1] || null;
+      }
+      const found = appData.pcs.find(p => clean.includes(p.id.toUpperCase()));
+      return found ? found.id : clean;
+    }
+
+    function handleManualCodeLookup(e) {
+      e.preventDefault();
+      const input = document.getElementById('manual-pc-code');
+      const code = extractPcIdFromQr(input ? input.value : '');
+      if (!code) return;
+      openScannedPc(code);
+    }
+
+    function openScannedPc(pcId) {
+      const pc = appData.pcs.find(p => p.id.toUpperCase() === String(pcId).toUpperCase());
+      if (!pc) {
+        showToast(`❌ Устройство с кодом «${pcId}» не найдено в базе`);
+        return;
+      }
+      triggerHaptic();
+      stopCameraScanner();
+      scannedPcId = pc.id;
+      renderAll();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* =========================================================================
+       I. STUDENT VIEW 2: SCANNED PC PASSPORT & REPORT PROBLEM -> SERVICE MEMO
+       ========================================================================= */
+    function renderStudentPassportView(container, pcId) {
+      const pc = appData.pcs.find(p => p.id === pcId);
+      if (!pc) {
+        scannedPcId = null;
+        renderStudentScannerView(container);
+        return;
+      }
+
+      const swHtml = pc.software.length
+        ? pc.software.map(s => `<span class="sw-tag">📦 ${escapeHtml(s)}</span>`).join('')
+        : `<span style="color:var(--text-muted);font-size:13px;">Список ПО не указан</span>`;
+
+      const logsHtml = pc.logs.length
+        ? pc.logs.map(l => `
+            <div class="timeline-row">
+              <div class="timeline-dot"></div>
+              <div style="font-size:12px;font-weight:800;color:var(--royal);">${escapeHtml(l.date)} • ${escapeHtml(l.type)}</div>
+              <div style="font-size:13.5px;font-weight:600;color:var(--text-main);margin-top:2px;">${escapeHtml(l.desc)}</div>
+              <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">👤 ${escapeHtml(l.master)}</div>
+            </div>
+          `).join('')
+        : `<div style="color:var(--text-muted);font-size:13px;">Записей о ТО пока нет</div>`;
+
+      container.innerHTML = `
+        <div style="margin-bottom:12px;">
+          <button type="button" class="btn btn-outline btn-sm" onclick="scannedPcId=null;renderAll();">
+            ${escapeHtml(t('backToScanner'))}
+          </button>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
+            <div>
+              <div style="font-family:monospace;font-size:12.5px;font-weight:800;color:var(--royal);background:var(--royal-soft);display:inline-block;padding:3px 9px;border-radius:7px;margin-bottom:6px;">
+                ${escapeHtml(pc.id)}
+              </div>
+              <h1 style="font-size:20px;font-weight:900;line-height:1.25;">${escapeHtml(pc.name)}</h1>
+              <div style="font-size:13.5px;font-weight:700;color:var(--text-secondary);margin-top:4px;">
+                📍 ${escapeHtml(pc.building)}, ${pc.floor} ${escapeHtml(t('floorSuffix'))}, ${escapeHtml(t('roomPrefix'))} ${escapeHtml(pc.room)}
+                ${pc.roomNote ? `(${escapeHtml(pc.roomNote)})` : ''}
+              </div>
+            </div>
+            <span class="badge badge-${pc.status}">${escapeHtml(t('status_' + pc.status))}</span>
+          </div>
+
+          <button type="button" class="btn btn-danger btn-block" onclick="openReportProblemModal('${escapeHtml(pc.id)}')">
+            ⚠️ ${escapeHtml(t('reportBtn'))}
+          </button>
+        </div>
+
+        <div class="card">
+          <div class="section-title" style="margin-bottom:12px;">🖥️ ${escapeHtml(t('specsTitle'))}</div>
+          <div class="specs-grid">
+            <div class="spec-item"><div class="spec-lbl">Процессор (CPU)</div><div class="spec-val">${escapeHtml(pc.specs.cpu || '—')}</div></div>
+            <div class="spec-item"><div class="spec-lbl">ОЗУ (RAM)</div><div class="spec-val">${escapeHtml(pc.specs.ram || '—')}</div></div>
+            <div class="spec-item"><div class="spec-lbl">Накопитель</div><div class="spec-val">${escapeHtml(pc.specs.ssd || '—')}</div></div>
+            <div class="spec-item"><div class="spec-lbl">Видеокарта</div><div class="spec-val">${escapeHtml(pc.specs.gpu || '—')}</div></div>
+            <div class="spec-item"><div class="spec-lbl">Операционная система</div><div class="spec-val">${escapeHtml(pc.specs.os || '—')}</div></div>
+            <div class="spec-item"><div class="spec-lbl">Сеть / IP</div><div class="spec-val">${escapeHtml(pc.specs.net || '—')}</div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-title" style="margin-bottom:12px;">💿 ${escapeHtml(t('swTitle'))} (${pc.software.length})</div>
+          <div class="sw-tags">${swHtml}</div>
+        </div>
+
+        <div class="card">
+          <div class="section-title" style="margin-bottom:12px;">🛠️ ${escapeHtml(t('logsTitle'))}</div>
+          <div class="timeline">${logsHtml}</div>
+        </div>
+      `;
+    }
+
+    function openReportProblemModal(pcId) {
+      const pc = appData.pcs.find(p => p.id === pcId);
+      if (!pc) return;
+      reportTargetPcId = pc.id;
+      selectedIssueChip = '';
+      document.getElementById('rep-device-caption').textContent = `${pc.id} • ${pc.building}, ${pc.floor} эт., каб. ${pc.room}`;
+      document.getElementById('rep-desc-input').value = '';
+      document.getElementById('rep-sender-input').value = '';
+
+      const chipsBox = document.getElementById('rep-issue-chips');
+      chipsBox.innerHTML = ISSUE_TEMPLATES.map((txt, idx) => `
+        <button type="button" class="issue-chip" id="issue-chip-${idx}" onclick="selectIssueTemplate(${idx})">
+          ${escapeHtml(txt)}
+        </button>
+      `).join('');
+
+      openModal('modal-report');
+    }
+
+    function selectIssueTemplate(idx) {
+      const txt = ISSUE_TEMPLATES[idx];
+      selectedIssueChip = txt;
+      document.querySelectorAll('.issue-chip').forEach((el, i) => {
+        el.classList.toggle('active', i === idx);
+      });
+      const area = document.getElementById('rep-desc-input');
+      if (area) area.value = txt;
+    }
+
+    function submitProblemMemo(e) {
+      e.preventDefault();
+      const pc = appData.pcs.find(p => p.id === reportTargetPcId);
+      if (!pc) return;
+
+      const desc = document.getElementById('rep-desc-input').value.trim();
+      const sender = document.getElementById('rep-sender-input').value.trim() || 'Студент / Пользователь аудитории';
+      if (!desc) return;
+
+      const nextNum = String(appData.memos.length + 15).padStart(3, '0');
+      const memo = {
+        memoNumber: `СЗ-2026-${nextNum}`,
+        pcId: pc.id,
+        pcName: pc.name,
+        location: `${pc.building}, ${pc.floor} этаж, каб. ${pc.room}`,
+        specsSummary: `${pc.specs.cpu} / ${pc.specs.ram} / ${pc.specs.ssd}`,
+        description: desc,
+        sender: sender,
+        createdAt: formatNow(),
+        status: 'open'
+      };
+
+      appData.memos.unshift(memo);
+      pc.status = 'broken';
+      pc.logs.unshift({
+        date: formatToday(),
+        type: 'Служебная записка',
+        desc: `${memo.memoNumber}: ${desc}`,
+        master: sender
+      });
+      saveState();
+
+      closeModal('modal-report');
+      renderAll();
+
+      // Show official generated Service Memo slip immediately
+      const slipBody = document.getElementById('memo-slip-modal-body');
+      slipBody.innerHTML = `
+        <div class="memo-document">
+          <div class="memo-header-grid">
+            <div>
+              <div style="font-size:11px;font-weight:800;color:var(--text-muted);text-transform:uppercase;">Официальный документ OpsQR</div>
+              <div style="font-size:17px;font-weight:900;margin-top:2px;">СЛУЖЕБНАЯ ЗАПИСКА № ${escapeHtml(memo.memoNumber)}</div>
+              <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">Дата: ${escapeHtml(memo.createdAt)}</div>
+            </div>
+            <span class="memo-stamp">Передано ИТ-инженерам</span>
+          </div>
+          <div style="font-size:13px;display:grid;gap:6px;margin-bottom:12px;">
+            <div><b>Кому:</b> Начальнику ИТ-отдела / Дежурному инженеру</div>
+            <div><b>От кого:</b> ${escapeHtml(memo.sender)}</div>
+            <div><b>Оборудование:</b> ${escapeHtml(memo.pcName)} (<span style="font-family:monospace;">${escapeHtml(memo.pcId)}</span>)</div>
+            <div><b>Местоположение:</b> ${escapeHtml(memo.location)}</div>
+            <div><b>Конфигурация:</b> ${escapeHtml(memo.specsSummary)}</div>
+            <div style="background:var(--rose-soft);border:1px solid var(--rose-border);padding:10px;border-radius:10px;margin-top:4px;">
+              <b style="color:var(--rose);">Суть неисправности:</b><br/>
+              ${escapeHtml(memo.description)}
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <button type="button" class="btn btn-dark btn-sm" onclick="printMemoDocument('${escapeHtml(memo.memoNumber)}')">🖨️ Печать записки</button>
+            <button type="button" class="btn btn-primary btn-sm" onclick="closeModal('modal-memo-slip')">Готово</button>
+          </div>
+        </div>
+      `;
+      openModal('modal-memo-slip');
+    }
+
+    /* =========================================================================
+       J. CASCADE FILTERING ENGINE (BUILDING -> FLOOR -> 3-DIGIT ROOM -> STATUS)
+       ========================================================================= */
+    function getFilteredPcs() {
+      return appData.pcs.filter(pc => {
+        if (filterBuilding !== 'ALL' && pc.building !== filterBuilding) return false;
+        if (filterFloor !== 'ALL' && Number(pc.floor) !== Number(filterFloor)) return false;
+        if (filterRoom !== 'ALL' && String(pc.room) !== String(filterRoom)) return false;
+        if (filterStatus !== 'ALL' && pc.status !== filterStatus) return false;
+        if (filterSearch.trim()) {
+          const q = filterSearch.trim().toLowerCase();
+          const hay = [
+            pc.id,
+            pc.name,
+            pc.building,
+            String(pc.room),
+            pc.roomNote || '',
+            pc.specs.cpu,
+            pc.software.join(' ')
+          ].join(' ').toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+    }
+
+    function selectFilterBuilding(b) {
+      filterBuilding = b;
+      filterFloor = 'ALL';
+      filterRoom = 'ALL';
+      renderAll();
+    }
+
+    function selectFilterFloor(f) {
+      filterFloor = f;
+      filterRoom = 'ALL';
+      renderAll();
+    }
+
+    function selectFilterRoom(r) {
+      filterRoom = r;
+      renderAll();
+    }
+
+    function selectFilterStatus(s) {
+      filterStatus = s;
+      renderAll();
+    }
+
+    function renderCascadeFilterCard() {
+      const buildings = ['Главный корпус', '1 корпус', '2 корпус', '4 корпус'];
+      const totalCnt = appData.pcs.length;
+
+      const buildingPills = `
+        <button type="button" class="filter-pill ${filterBuilding === 'ALL' ? 'active' : ''}" onclick="selectFilterBuilding('ALL')">
+          ${escapeHtml(t('allBuildings'))} <span class="pill-count">${totalCnt}</span>
+        </button>
+        ${buildings.map(b => {
+          const cnt = appData.pcs.filter(p => p.building === b).length;
+          return `
+            <button type="button" class="filter-pill ${filterBuilding === b ? 'active' : ''}" onclick="selectFilterBuilding('${escapeHtml(b)}')">
+              🏢 ${escapeHtml(b)} <span class="pill-count">${cnt}</span>
+            </button>
+          `;
+        }).join('')}
+      `;
+
+      // Floor pills based on selected building (Главный: 4, 1 корпус: 6, 2 корпус: 6, 4 корпус: 4)
+      const maxFloors = filterBuilding === 'ALL' ? 6 : (BUILDING_FLOORS[filterBuilding] || 6);
+      const baseByBuilding = filterBuilding === 'ALL'
+        ? appData.pcs
+        : appData.pcs.filter(p => p.building === filterBuilding);
+
+      let floorPills = `
+        <button type="button" class="filter-pill ${filterFloor === 'ALL' ? 'active' : ''}" onclick="selectFilterFloor('ALL')">
+          ${escapeHtml(t('allFloors'))} <span class="pill-count">${baseByBuilding.length}</span>
+        </button>
+      `;
+      for (let fl = 1; fl <= maxFloors; fl++) {
+        const cnt = baseByBuilding.filter(p => Number(p.floor) === fl).length;
+        floorPills += `
+          <button type="button" class="filter-pill ${Number(filterFloor) === fl ? 'active' : ''}" onclick="selectFilterFloor(${fl})">
+            ${fl} ${escapeHtml(t('floorSuffix'))} <span class="pill-count">${cnt}</span>
+          </button>
+        `;
+      }
+
+      // Room pills (3-digit rooms filtered by building & floor)
+      const baseByFloor = filterFloor === 'ALL'
+        ? baseByBuilding
+        : baseByBuilding.filter(p => Number(p.floor) === Number(filterFloor));
+
+      const uniqueRooms = [...new Set(baseByFloor.map(p => String(p.room)))].sort();
+      let roomPills = `
+        <button type="button" class="filter-pill ${filterRoom === 'ALL' ? 'active' : ''}" onclick="selectFilterRoom('ALL')">
+          ${escapeHtml(t('allRooms'))} <span class="pill-count">${baseByFloor.length}</span>
+        </button>
+        ${uniqueRooms.map(rm => {
+          const cnt = baseByFloor.filter(p => String(p.room) === rm).length;
+          return `
+            <button type="button" class="filter-pill ${String(filterRoom) === rm ? 'active' : ''}" onclick="selectFilterRoom('${escapeHtml(rm)}')">
+              🚪 ${escapeHtml(t('roomPrefix'))} ${escapeHtml(rm)} <span class="pill-count">${cnt}</span>
+            </button>
+          `;
+        }).join('')}
+      `;
+
+      return `
+        <div class="card">
+          <span class="filter-group-label">1. Корпус университета</span>
+          <div class="pill-row">${buildingPills}</div>
+
+          <span class="filter-group-label">2. Этаж</span>
+          <div class="pill-row">${floorPills}</div>
+
+          <span class="filter-group-label">3. Кабинет / Аудитория (3-значный номер)</span>
+          <div class="pill-row">${roomPills}</div>
+
+          <div style="display:grid;grid-template-columns:1fr;gap:8px;">
+            <input
+              type="text"
+              class="form-control"
+              value="${escapeHtml(filterSearch)}"
+              oninput="filterSearch=this.value;renderAll();"
+              placeholder="🔍 Быстрый поиск по номеру ПК, инв. коду или программе (напр. Python, 310)..."
+            />
+          </div>
+        </div>
+      `;
+    }
+
+    /* =========================================================================
+       K. STAFF TAB 1: PC REGISTRY & QR STICKERS
+       ========================================================================= */
+    function renderRegistryTab(container) {
+      const filtered = getFilteredPcs();
+
+      const statusPills = `
+        <div class="pill-row" style="margin-bottom:14px;">
+          <button type="button" class="filter-pill ${filterStatus === 'ALL' ? 'active' : ''}" onclick="selectFilterStatus('ALL')">
+            ${escapeHtml(t('allStatuses'))} (${appData.pcs.length})
+          </button>
+          <button type="button" class="filter-pill ${filterStatus === 'working' ? 'active' : ''}" onclick="selectFilterStatus('working')">
+            🟢 Работает (${appData.pcs.filter(p => p.status === 'working').length})
+          </button>
+          <button type="button" class="filter-pill ${filterStatus === 'service_due' ? 'active' : ''}" onclick="selectFilterStatus('service_due')">
+            🟡 Требует ТО (${appData.pcs.filter(p => p.status === 'service_due').length})
+          </button>
+          <button type="button" class="filter-pill ${filterStatus === 'broken' ? 'active' : ''}" onclick="selectFilterStatus('broken')">
+            🔴 В ремонте (${appData.pcs.filter(p => p.status === 'broken').length})
+          </button>
+        </div>
+      `;
+
+      const listHtml = filtered.length
+        ? filtered.map(pc => `
+            <div class="registry-card">
+              <div style="min-width:0;flex:1;">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px;">
+                  <span style="font-family:monospace;font-size:12px;font-weight:800;background:var(--royal-soft);color:var(--royal);padding:2px 8px;border-radius:6px;">
+                    ${escapeHtml(pc.id)}
+                  </span>
+                  <span class="badge badge-${pc.status}" style="font-size:11.5px;padding:2px 8px;">
+                    ${escapeHtml(t('status_' + pc.status))}
+                  </span>
+                </div>
+                <div style="font-size:16px;font-weight:800;color:var(--text-main);">${escapeHtml(pc.name)}</div>
+                <div style="font-size:13px;font-weight:700;color:var(--text-secondary);margin-top:2px;">
+                  📍 ${escapeHtml(pc.building)} • ${pc.floor} этаж • Каб. ${escapeHtml(pc.room)}
+                  ${pc.roomNote ? `(${escapeHtml(pc.roomNote)})` : ''}
+                </div>
+                <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">
+                  ⚙️ ${escapeHtml(pc.specs.cpu)} • ${escapeHtml(pc.specs.ram)} • ПО: ${pc.software.length} шт.
+                </div>
+              </div>
+
+              <div style="display:flex;gap:7px;flex-wrap:wrap;flex-shrink:0;">
+                <button type="button" class="btn btn-primary btn-sm" onclick="openStaffPassportFor('${escapeHtml(pc.id)}')">
+                  📋 Паспорт и ПО
+                </button>
+                <button type="button" class="btn btn-outline btn-sm" onclick="openSingleStickerModal('${escapeHtml(pc.id)}')">
+                  🏷️ QR-код
+                </button>
+                <button type="button" class="btn btn-outline btn-sm" style="color:var(--rose);border-color:var(--rose-border);" onclick="promptDeletePc('${escapeHtml(pc.id)}')">
+                  🗑️
+                </button>
+              </div>
+            </div>
+          `).join('')
+        : `<div class="card" style="text-align:center;color:var(--text-muted);padding:28px;">По выбранным фильтрам компьютеры не найдены.</div>`;
+
+      container.innerHTML = `
+        <div class="section-hdr" style="flex-wrap:wrap;">
+          <div>
+            <h1 style="font-size:20px;font-weight:900;">💻 Реестр ПК и генератор QR-стикеров</h1>
+            <div style="font-size:12.5px;color:var(--text-secondary);">Найдено устройств: <b>${filtered.length}</b> из ${appData.pcs.length}</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button type="button" class="btn btn-dark btn-sm" onclick="printBatchStickers()">
+              🖨️ Печать QR (${filtered.length})
+            </button>
+            <button type="button" class="btn btn-primary btn-sm" onclick="openAddPcModal()">
+              ➕ Добавить ПК
+            </button>
+          </div>
+        </div>
+
+        ${renderCascadeFilterCard()}
+        ${statusPills}
+        ${listHtml}
+      `;
+    }
+
+    function openStaffPassportFor(pcId) {
+      staffSelectedPcId = pcId;
+      editingSwIdx = null;
+      staffTab = 'passport';
+      renderAll();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* Add New PC Modal Logic with Strict Building / Floor / 3-Digit Room */
+    function openAddPcModal() {
+      const bSel = document.getElementById('new-pc-building');
+      bSel.value = filterBuilding !== 'ALL' ? filterBuilding : 'Главный корпус';
+      onNewPcBuildingChange();
+      openModal('modal-add-pc');
+    }
+
+    function onNewPcBuildingChange() {
+      const b = document.getElementById('new-pc-building').value;
+      const maxF = BUILDING_FLOORS[b] || 4;
+      const fSel = document.getElementById('new-pc-floor');
+      fSel.innerHTML = '';
+      for (let i = 1; i <= maxF; i++) {
+        const opt = document.createElement('option');
+        opt.value = String(i);
+        opt.textContent = `${i} этаж (${i}xx)`;
+        fSel.appendChild(opt);
+      }
+      if (filterFloor !== 'ALL' && Number(filterFloor) <= maxF) {
+        fSel.value = String(filterFloor);
+      }
+      onNewPcFloorChange();
+    }
+
+    function onNewPcFloorChange() {
+      const fl = document.getElementById('new-pc-floor').value || '1';
+      const roomInp = document.getElementById('new-pc-room-num');
+      const hint = document.getElementById('new-pc-room-hint');
+      hint.textContent = `${fl} этаж → 3 цифры, начинается на ${fl} (напр. ${fl}05)`;
+      if (!roomInp.value || roomInp.value[0] !== fl) {
+        roomInp.value = `${fl}05`;
+      }
+      syncNewPcAutoId();
+    }
+
+    function onNewPcRoomNumInput() {
+      const fl = document.getElementById('new-pc-floor').value || '1';
+      const roomInp = document.getElementById('new-pc-room-num');
+      let digits = roomInp.value.replace(/\D/g, '').slice(0, 3);
+      if (digits.length > 0 && digits[0] !== fl) {
+        digits = fl + digits.slice(1);
+      }
+      roomInp.value = digits;
+      syncNewPcAutoId();
+    }
+
+    function syncNewPcAutoId() {
+      const b = document.getElementById('new-pc-building').value;
+      const code = BUILDING_CODES[b] || 'UN';
+      const room = document.getElementById('new-pc-room-num').value || '101';
+      const sameRoomCount = appData.pcs.filter(p => p.building === b && String(p.room) === room).length + 1;
+      const numStr = String(sameRoomCount).padStart(2, '0');
+      document.getElementById('new-pc-id').value = `PC-${code}-${room}-${numStr}`;
+      document.getElementById('new-pc-name').value = `ПК №${numStr}`;
+    }
+
+    function submitNewPc(e) {
+      e.preventDefault();
+      const building = document.getElementById('new-pc-building').value;
+      const floor = Number(document.getElementById('new-pc-floor').value);
+      const room = document.getElementById('new-pc-room-num').value.trim();
+
+      if (!/^\d{3}$/.test(room) || Number(room[0]) !== floor) {
+        showToast(`⚠️ Номер кабинета должен состоять из 3 цифр и начинаться с ${floor} (например, ${floor}05)`);
+        return;
+      }
+
+      const id = document.getElementById('new-pc-id').value.trim().toUpperCase();
+      if (appData.pcs.some(p => p.id.toUpperCase() === id)) {
+        showToast(`⚠️ ПК с инвентарным номером ${id} уже существует`);
+        return;
+      }
+
+      const swRaw = document.getElementById('new-pc-sw').value.trim();
+      const swList = swRaw
+        ? swRaw.split(',').map(s => s.trim()).filter(Boolean)
+        : ['MS Office 2021', 'Google Chrome', 'Kaspersky Endpoint'];
+
+      const newPc = {
+        id,
+        name: document.getElementById('new-pc-name').value.trim() || 'ПК №01',
+        building,
+        floor,
+        room,
+        roomNote: document.getElementById('new-pc-room-note').value.trim(),
+        status: document.getElementById('new-pc-status').value,
+        specs: {
+          cpu: document.getElementById('new-pc-cpu').value.trim() || 'Intel Core i5-12400',
+          ram: document.getElementById('new-pc-ram').value.trim() || '16 GB DDR4',
+          ssd: document.getElementById('new-pc-ssd').value.trim() || '512 GB NVMe SSD',
+          gpu: document.getElementById('new-pc-gpu').value.trim() || 'Intel UHD Graphics',
+          os: document.getElementById('new-pc-os').value.trim() || 'Windows 11 Pro',
+          net: document.getElementById('new-pc-net').value.trim() || 'Ethernet 1Gbps'
+        },
+        software: swList,
+        logs: [
+          {
+            date: formatToday(),
+            type: 'Ввод в реестр',
+            desc: 'Компьютер добавлен в систему OpsQR и промаркирован QR-кодом',
+            master: 'ИТ-инженер'
+          }
+        ],
+        lastInventoryDate: formatToday()
+      };
+
+      appData.pcs.unshift(newPc);
+      saveState();
+      closeModal('modal-add-pc');
+      renderAll();
+      showToast(`✅ Добавлен ${newPc.id} (${building}, каб. ${room})`);
+      openSingleStickerModal(newPc.id);
+    }
+
+    function promptDeletePc(pcId) {
+      const pc = appData.pcs.find(p => p.id === pcId);
+      if (!pc) return;
+      deleteTargetPcId = pc.id;
+      document.getElementById('confirm-del-caption').textContent = `${pc.name} (${pc.id}) — ${pc.building}, каб. ${pc.room}`;
+      openModal('modal-confirm-del');
+    }
+
+    function executeDeletePc() {
+      if (!deleteTargetPcId) return;
+      appData.pcs = appData.pcs.filter(p => p.id !== deleteTargetPcId);
+      if (staffSelectedPcId === deleteTargetPcId) {
+        staffSelectedPcId = appData.pcs[0] ? appData.pcs[0].id : null;
+      }
+      saveState();
+      closeModal('modal-confirm-del');
+      renderAll();
+      showToast('🗑️ Компьютер удалён из реестра');
+    }
+
+    /* Single & Batch QR Sticker Modals & Printing */
+    function openSingleStickerModal(pcId) {
+      const pc = appData.pcs.find(p => p.id === pcId);
+      if (!pc) return;
+      stickerTargetPcId = pc.id;
+
+      const box = document.getElementById('single-sticker-preview');
+      box.innerHTML = `
+        <div style="border:2px solid #0f172a;border-radius:16px;padding:16px;background:#ffffff;display:inline-block;width:100%;max-width:290px;">
+          <div style="font-size:11px;font-weight:900;letter-spacing:0.06em;color:var(--royal);text-transform:uppercase;">OpsQR • Электронный паспорт</div>
+          <canvas id="single-qr-canvas" style="margin:10px auto;display:block;border-radius:8px;"></canvas>
+          <div style="font-family:monospace;font-size:16px;font-weight:900;color:#0f172a;">${escapeHtml(pc.id)}</div>
+          <div style="font-size:13px;font-weight:800;color:var(--text-secondary);margin-top:2px;">${escapeHtml(pc.building)}, ${pc.floor} эт., каб. ${escapeHtml(pc.room)}</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">Отсканируйте камерой телефона</div>
+        </div>
+      `;
+      openModal('modal-sticker');
+      const canvas = document.getElementById('single-qr-canvas');
+      if (canvas) PureQR.drawToCanvas(canvas, getQrPayload(pc), 185);
+    }
+
+    function printSingleSticker() {
+      const pc = appData.pcs.find(p => p.id === stickerTargetPcId);
+      if (!pc) return;
+      const dataUrl = PureQR.toDataURL(getQrPayload(pc), 220);
+      const printArea = document.getElementById('print-area');
+      printArea.innerHTML = `
+        <div class="print-sticker-grid">
+          <div class="print-sticker-card">
+            <div style="font-size:10pt;font-weight:800;">OpsQR • ЭЛЕКТРОННЫЙ ПАСПОРТ</div>
+            <img src="${dataUrl}" style="width:45mm;height:45mm;margin:6px auto;display:block;" />
+            <div style="font-family:monospace;font-size:13pt;font-weight:900;">${escapeHtml(pc.id)}</div>
+            <div style="font-size:10.5pt;font-weight:700;">${escapeHtml(pc.building)}, ${pc.floor} эт., каб. ${escapeHtml(pc.room)}</div>
+            <div style="font-size:8.5pt;margin-top:3px;">Сканируйте для просмотра ПО и вызова ИТ</div>
+          </div>
+        </div>
+      `;
+      window.print();
+    }
+
+    function downloadSingleStickerPng() {
+      const pc = appData.pcs.find(p => p.id === stickerTargetPcId);
+      if (!pc) return;
+      const dataUrl = PureQR.toDataURL(getQrPayload(pc), 320);
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = `${pc.id}_QR.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      showToast(`⬇ Скачан файл ${pc.id}_QR.png`);
+    }
+
+    function printBatchStickers() {
+      const list = getFilteredPcs();
+      if (!list.length) {
+        showToast('⚠️ Нет выбранных ПК для печати');
+        return;
+      }
+      const printArea = document.getElementById('print-area');
+      const cards = list.map(pc => {
+        const dataUrl = PureQR.toDataURL(getQrPayload(pc), 200);
+        return `
+          <div class="print-sticker-card">
+            <div style="font-size:9.5pt;font-weight:800;">OpsQR • ЭЛЕКТРОННЫЙ ПАСПОРТ</div>
+            <img src="${dataUrl}" style="width:42mm;height:42mm;margin:5px auto;display:block;" />
+            <div style="font-family:monospace;font-size:12pt;font-weight:900;">${escapeHtml(pc.id)}</div>
+            <div style="font-size:10pt;font-weight:700;">${escapeHtml(pc.building)}, ${pc.floor} эт., каб. ${escapeHtml(pc.room)}</div>
+            <div style="font-size:8pt;margin-top:2px;">${escapeHtml(pc.name)}</div>
+          </div>
+        `;
+      }).join('');
+      printArea.innerHTML = `<div class="print-sticker-grid">${cards}</div>`;
+      window.print();
+    }
+
+    /* =========================================================================
+       L. STAFF TAB 2: ELECTRONIC PASSPORT & EDITABLE INSTALLED SOFTWARE (CRUD)
+       ========================================================================= */
+    function renderStaffPassportTab(container) {
+      if (!appData.pcs.length) {
+        container.innerHTML = `<div class="card">В реестре пока нет компьютеров. Добавьте первый ПК во вкладке «Реестр ПК и QR».</div>`;
+        return;
+      }
+
+      if (!staffSelectedPcId || !appData.pcs.some(p => p.id === staffSelectedPcId)) {
+        staffSelectedPcId = appData.pcs[0].id;
+      }
+
+      const pc = appData.pcs.find(p => p.id === staffSelectedPcId);
+
+      const selectorOptions = appData.pcs.map(p => `
+        <option value="${escapeHtml(p.id)}" ${p.id === pc.id ? 'selected' : ''}>
+          ${escapeHtml(p.id)} — ${escapeHtml(p.building)}, ${p.floor} эт., каб. ${escapeHtml(p.room)} (${escapeHtml(p.name)})
+        </option>
+      `).join('');
+
+      // Software CRUD rows (Edit inline, Delete, Add new, Quick-add chips)
+      const swRowsHtml = pc.software.length
+        ? pc.software.map((swName, idx) => {
+            if (editingSwIdx === idx) {
+              return `
+                <div class="sw-crud-item" style="background:var(--royal-soft);border-color:var(--royal-bright);">
+                  <input
+                    id="edit-sw-input-${idx}"
+                    type="text"
+                    class="form-control"
+                    value="${escapeHtml(swName)}"
+                    onkeydown="if(event.key==='Enter'){event.preventDefault();saveEditedSoftware(${idx});}"
+                    style="padding:7px 10px;font-size:13.5px;font-weight:700;"
+                  />
+                  <div style="display:flex;gap:6px;flex-shrink:0;">
+                    <button type="button" class="btn btn-emerald btn-sm" onclick="saveEditedSoftware(${idx})">✅ Сохранить</button>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="editingSwIdx=null;renderAll();">✕</button>
+                  </div>
+                </div>
+              `;
+            }
+            return `
+              <div class="sw-crud-item">
+                <div style="font-size:13.5px;font-weight:700;color:var(--text-main);word-break:break-word;">
+                  💿 ${escapeHtml(swName)}
+                </div>
+                <div style="display:flex;gap:6px;flex-shrink:0;">
+                  <button type="button" class="btn btn-outline btn-sm" onclick="startEditSoftware(${idx})">✏️ Изменить</button>
+                  <button type="button" class="btn btn-outline btn-sm" style="color:var(--rose);border-color:var(--rose-border);" onclick="deleteSoftwareItem(${idx})">🗑️</button>
+                </div>
+              </div>
+            `;
+          }).join('')
+        : `<div style="color:var(--text-muted);font-size:13px;padding:8px 0;">Список установленных программ пуст. Добавьте ПО ниже.</div>`;
+
+      const quickChipsHtml = QUICK_SOFTWARE_CATALOG.map(item => {
+        const already = pc.software.some(s => s.toLowerCase() === item.toLowerCase());
+        return `
+          <button
+            type="button"
+            class="quick-sw-chip ${already ? 'installed' : ''}"
+            onclick="quickAddSoftware('${escapeHtml(item)}')"
+          >
+            ${already ? '✓' : '+'} ${escapeHtml(item)}
+          </button>
+        `;
+      }).join('');
+
+      const logsHtml = pc.logs.map(l => `
+        <div class="timeline-row">
+          <div class="timeline-dot"></div>
+          <div style="font-size:12px;font-weight:800;color:var(--royal);">${escapeHtml(l.date)} • ${escapeHtml(l.type)}</div>
+          <div style="font-size:13.5px;font-weight:600;color:var(--text-main);margin-top:2px;">${escapeHtml(l.desc)}</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">👤 ${escapeHtml(l.master)}</div>
+        </div>
+      `).join('');
+
+      container.innerHTML = `
+        <div class="card">
+          <label class="form-label">Выберите компьютер для просмотра и редактирования паспорта:</label>
+          <select class="form-control" onchange="staffSelectedPcId=this.value;editingSwIdx=null;renderAll();" style="font-weight:700;">
+            ${selectorOptions}
+          </select>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
+            <div>
+              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
+                <span style="font-family:monospace;font-size:12.5px;font-weight:800;background:var(--royal-soft);color:var(--royal);padding:3px 9px;border-radius:7px;">
+                  ${escapeHtml(pc.id)}
+                </span>
+                <span style="font-size:11.5px;font-weight:800;background:var(--emerald-soft);color:var(--emerald);padding:3px 9px;border-radius:7px;">
+                  🛠️ Режим сотрудника: редактирование доступно
+                </span>
+              </div>
+              <h1 style="font-size:20px;font-weight:900;">${escapeHtml(pc.name)}</h1>
+              <div style="font-size:13.5px;font-weight:700;color:var(--text-secondary);margin-top:3px;">
+                📍 ${escapeHtml(pc.building)}, ${pc.floor} этаж, Каб. ${escapeHtml(pc.room)}
+                ${pc.roomNote ? `(${escapeHtml(pc.roomNote)})` : ''}
+              </div>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <select class="form-control" style="width:auto;font-weight:700;" onchange="changePcStatus('${escapeHtml(pc.id)}', this.value)">
+                <option value="working" ${pc.status === 'working' ? 'selected' : ''}>🟢 Работает</option>
+                <option value="service_due" ${pc.status === 'service_due' ? 'selected' : ''}>🟡 Требует ТО</option>
+                <option value="broken" ${pc.status === 'broken' ? 'selected' : ''}>🔴 В ремонте</option>
+              </select>
+              <button type="button" class="btn btn-outline btn-sm" onclick="openSingleStickerModal('${escapeHtml(pc.id)}')">🏷️ QR</button>
+            </div>
+          </div>
+
+          <div class="specs-grid">
+            <div class="spec-item"><div class="spec-lbl">Процессор (CPU)</div><div class="spec-val">${escapeHtml(pc.specs.cpu)}</div></div>
+            <div class="spec-item"><div class="spec-lbl">ОЗУ (RAM)</div><div class="spec-val">${escapeHtml(pc.specs.ram)}</div></div>
+            <div class="spec-item"><div class="spec-lbl">Накопитель</div><div class="spec-val">${escapeHtml(pc.specs.ssd)}</div></div>
+            <div class="spec-item"><div class="spec-lbl">Видеокарта</div><div class="spec-val">${escapeHtml(pc.specs.gpu)}</div></div>
+            <div class="spec-item"><div class="spec-lbl">Операционная система</div><div class="spec-val">${escapeHtml(pc.specs.os)}</div></div>
+            <div class="spec-item"><div class="spec-lbl">Сеть / IP</div><div class="spec-val">${escapeHtml(pc.specs.net)}</div></div>
+          </div>
+        </div>
+
+        <!-- EDITABLE INSTALLED SOFTWARE SECTION -->
+        <div class="card">
+          <div class="section-hdr">
+            <div class="section-title">💿 Установленные программы (${pc.software.length})</div>
+          </div>
+
+          <div class="sw-crud-list">${swRowsHtml}</div>
+
+          <form onsubmit="addSoftwareItem(event)" style="display:flex;gap:8px;margin-bottom:10px;">
+            <input id="new-sw-input" type="text" class="form-control" placeholder="Название новой программы и версия (напр. PyCharm 2026.1)..." />
+            <button type="submit" class="btn btn-primary" style="white-space:nowrap;">➕ Добавить</button>
+          </form>
+
+          <div>
+            <div style="font-size:11.5px;font-weight:700;color:var(--text-muted);">Быстрое добавление типового ПО в 1 нажатие:</div>
+            <div class="quick-chip-row">${quickChipsHtml}</div>
+          </div>
+        </div>
+
+        <!-- MAINTENANCE & REPAIR LOGS + ADD LOG FORM -->
+        <div class="card">
+          <div class="section-title" style="margin-bottom:12px;">🛠️ Журнал ТО и ремонтов</div>
+          <div class="timeline" style="margin-bottom:16px;">${logsHtml}</div>
+
+          <form onsubmit="addManualLogEntry(event)" style="border-top:1px solid var(--border-light);padding-top:14px;">
+            <div style="font-size:13px;font-weight:800;margin-bottom:8px;">Добавить запись о выполненном ТО / ремонте:</div>
+            <div style="display:grid;grid-template-columns:1fr 2fr;gap:8px;margin-bottom:8px;">
+              <select id="log-type-sel" class="form-control">
+                <option value="ТО / ТҚК">ТО / ТҚК</option>
+                <option value="Ремонт / Жөндеу">Ремонт / Жөндеу</option>
+                <option value="ПО / БҚ">ПО / БҚ</option>
+              </select>
+              <input id="log-desc-inp" type="text" class="form-control" required placeholder="Что выполнено (напр. Замена термопасты и чистка)..." />
+            </div>
+            <button type="submit" class="btn btn-dark btn-sm">💾 Записать в журнал</button>
+          </form>
+        </div>
+      `;
+
+      if (editingSwIdx !== null) {
+        const inp = document.getElementById(`edit-sw-input-${editingSwIdx}`);
+        if (inp) {
+          inp.focus();
+          inp.setSelectionRange(inp.value.length, inp.value.length);
+        }
+      }
+    }
+
+    function changePcStatus(pcId, newStatus) {
+      const pc = appData.pcs.find(p => p.id === pcId);
+      if (!pc) return;
+      pc.status = newStatus;
+      pc.logs.unshift({
+        date: formatToday(),
+        type: 'Статус',
+        desc: `Статус изменён на «${t('status_' + newStatus)}»`,
+        master: 'ИТ-инженер'
+      });
+      saveState();
+      renderAll();
+      showToast(`✅ Статус ${pc.id} обновлён`);
+    }
+
+    function startEditSoftware(idx) {
+      editingSwIdx = idx;
+      renderAll();
+    }
+
+    function saveEditedSoftware(idx) {
+      const pc = appData.pcs.find(p => p.id === staffSelectedPcId);
+      if (!pc) return;
+      const inp = document.getElementById(`edit-sw-input-${idx}`);
+      const newVal = inp ? inp.value.trim() : '';
+      if (!newVal) {
+        showToast('⚠️ Название программы не может быть пустым');
+        return;
+      }
+      const oldVal = pc.software[idx];
+      if (oldVal !== newVal) {
+        pc.software[idx] = newVal;
+        pc.logs.unshift({
+          date: formatToday(),
+          type: 'ПО / БҚ',
+          desc: `Обновлено ПО: «${oldVal}» → «${newVal}»`,
+          master: 'ИТ-инженер'
+        });
+        saveState();
+        showToast(`✅ ПО обновлено: ${newVal}`);
+      }
+      editingSwIdx = null;
+      renderAll();
+    }
+
+    function deleteSoftwareItem(idx) {
+      const pc = appData.pcs.find(p => p.id === staffSelectedPcId);
+      if (!pc) return;
+      const removed = pc.software[idx];
+      pc.software.splice(idx, 1);
+      pc.logs.unshift({
+        date: formatToday(),
+        type: 'ПО / БҚ',
+        desc: `Удалена программа: «${removed}»`,
+        master: 'ИТ-инженер'
+      });
+      editingSwIdx = null;
+      saveState();
+      renderAll();
+      showToast(`🗑️ Удалено ПО: ${removed}`);
+    }
+
+    function addSoftwareItem(e) {
+      e.preventDefault();
+      const pc = appData.pcs.find(p => p.id === staffSelectedPcId);
+      if (!pc) return;
+      const inp = document.getElementById('new-sw-input');
+      const val = inp ? inp.value.trim() : '';
+      if (!val) return;
+      if (pc.software.some(s => s.toLowerCase() === val.toLowerCase())) {
+        showToast(`ℹ️ «${val}» уже есть в списке установленных программ`);
+        return;
+      }
+      pc.software.push(val);
+      pc.logs.unshift({
+        date: formatToday(),
+        type: 'ПО / БҚ',
+        desc: `Установлена программа: «${val}»`,
+        master: 'ИТ-инженер'
+      });
+      saveState();
+      renderAll();
+      showToast(`✅ Добавлено ПО: ${val}`);
+    }
+
+    function quickAddSoftware(name) {
+      const pc = appData.pcs.find(p => p.id === staffSelectedPcId);
+      if (!pc) return;
+      if (pc.software.some(s => s.toLowerCase() === name.toLowerCase())) {
+        showToast(`ℹ️ «${name}» уже установлено на этом ПК`);
+        return;
+      }
+      pc.software.push(name);
+      pc.logs.unshift({
+        date: formatToday(),
+        type: 'ПО / БҚ',
+        desc: `Установлена программа: «${name}»`,
+        master: 'ИТ-инженер'
+      });
+      saveState();
+      renderAll();
+      showToast(`✅ Установлено: ${name}`);
+    }
+
+    function addManualLogEntry(e) {
+      e.preventDefault();
+      const pc = appData.pcs.find(p => p.id === staffSelectedPcId);
+      if (!pc) return;
+      const type = document.getElementById('log-type-sel').value;
+      const desc = document.getElementById('log-desc-inp').value.trim();
+      if (!desc) return;
+      pc.logs.unshift({
+        date: formatToday(),
+        type,
+        desc,
+        master: 'ИТ-инженер'
+      });
+      saveState();
+      renderAll();
+      showToast('✅ Запись добавлена в журнал ТО');
+    }
+
+    /* =========================================================================
+       M. STAFF TAB 3: ONE-CLICK INVENTORY CHECK & ACT PRINTING
+       ========================================================================= */
+    function renderInventoryTab(container) {
+      const scope = getFilteredPcs();
+      const today = formatToday();
+      const verifiedCount = scope.filter(p => p.lastInventoryDate === today).length;
+      const pct = scope.length ? Math.round((verifiedCount / scope.length) * 100) : 0;
+
+      const rowsHtml = scope.length
+        ? scope.map(pc => {
+            const isVerifiedToday = pc.lastInventoryDate === today;
+            return `
+              <div class="inv-check-row ${isVerifiedToday ? 'verified' : ''}">
+                <div style="min-width:0;">
+                  <div style="font-family:monospace;font-size:12px;font-weight:800;color:var(--royal);">${escapeHtml(pc.id)}</div>
+                  <div style="font-size:14px;font-weight:800;">${escapeHtml(pc.name)}</div>
+                  <div style="font-size:12px;color:var(--text-secondary);">
+                    📍 ${escapeHtml(pc.building)}, ${pc.floor} эт., каб. ${escapeHtml(pc.room)} •
+                    ${isVerifiedToday ? `<b style="color:var(--emerald);">Проверено сегодня (${today})</b>` : `Последняя сверка: ${escapeHtml(pc.lastInventoryDate || 'не проводилась')}`}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  class="btn btn-sm ${isVerifiedToday ? 'btn-emerald' : 'btn-outline'}"
+                  onclick="toggleSingleInventory('${escapeHtml(pc.id)}')"
+                >
+                  ${isVerifiedToday ? '✅ В наличии' : '⬜ Отметить'}
+                </button>
+              </div>
+            `;
+          }).join('')
+        : `<div class="card" style="text-align:center;color:var(--text-muted);">Нет компьютеров в выбранном корпусе/кабинете.</div>`;
+
+      container.innerHTML = `
+        <div class="section-hdr" style="flex-wrap:wrap;">
+          <div>
+            <h1 style="font-size:20px;font-weight:900;">✅ Проверка инвентаризации в 1 клик</h1>
+            <div style="font-size:12.5px;color:var(--text-secondary);">Выберите корпус, этаж или кабинет и подтвердите наличие техники</div>
+          </div>
+          <button type="button" class="btn btn-dark btn-sm" onclick="printInventoryAct()">
+            🖨️ Печать акта сверки
+          </button>
+        </div>
+
+        ${renderCascadeFilterCard()}
+
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+            <div>
+              <div style="font-size:13px;font-weight:800;color:var(--text-secondary);">Прогресс сверки (${today}):</div>
+              <div style="font-size:20px;font-weight:900;color:var(--emerald);">Проверено: ${verifiedCount} из ${scope.length} (${pct}%)</div>
+            </div>
+            <button type="button" class="btn btn-emerald" onclick="runOneClickInventory()">
+              ⚡ Провести инвентаризацию в 1 клик
+            </button>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" style="width:${pct}%;"></div>
+          </div>
+        </div>
+
+        ${rowsHtml}
+      `;
+    }
+
+    function runOneClickInventory() {
+      const scope = getFilteredPcs();
+      if (!scope.length) {
+        showToast('⚠️ В выбранном фильтре нет компьютеров');
+        return;
+      }
+      const today = formatToday();
+      scope.forEach(pc => {
+        pc.lastInventoryDate = today;
+      });
+      saveState();
+      triggerHaptic();
+      renderAll();
+      showToast(`✅ Инвентаризация завершена: подтверждено ${scope.length} из ${scope.length} ПК (100%)`);
+    }
+
+    function toggleSingleInventory(pcId) {
+      const pc = appData.pcs.find(p => p.id === pcId);
+      if (!pc) return;
+      const today = formatToday();
+      pc.lastInventoryDate = pc.lastInventoryDate === today ? '' : today;
+      saveState();
+      renderAll();
+    }
+
+    function printInventoryAct() {
+      const scope = getFilteredPcs();
+      const today = formatToday();
+      const verified = scope.filter(p => p.lastInventoryDate === today).length;
+      const rows = scope.map((pc, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td style="font-family:monospace;font-weight:700;">${escapeHtml(pc.id)}</td>
+          <td>${escapeHtml(pc.name)}</td>
+          <td>${escapeHtml(pc.building)}, ${pc.floor} эт., каб. ${escapeHtml(pc.room)}</td>
+          <td>${escapeHtml(pc.specs.cpu)} / ${escapeHtml(pc.specs.ram)}</td>
+          <td>${pc.lastInventoryDate === today ? '✓ В наличии (' + today + ')' : 'Не отмечено'}</td>
+        </tr>
+      `).join('');
+
+      const printArea = document.getElementById('print-area');
+      printArea.innerHTML = `
+        <div style="font-family:Arial,sans-serif;">
+          <h2 style="margin-bottom:4px;">АКТ ИНВЕНТАРИЗАЦИИ КОМПЬЮТЕРНОЙ ТЕХНИКИ (OpsQR)</h2>
+          <div style="font-size:10.5pt;margin-bottom:10px;">
+            Дата проверки: <b>${today}</b> • Корпус: <b>${escapeHtml(filterBuilding === 'ALL' ? 'Все корпуса' : filterBuilding)}</b> •
+            Подтверждено: <b>${verified} из ${scope.length} ед.</b>
+          </div>
+          <table class="print-act-table">
+            <thead>
+              <tr>
+                <th>№</th>
+                <th>Инв. номер</th>
+                <th>Наименование</th>
+                <th>Расположение</th>
+                <th>Конфигурация</th>
+                <th>Результат сверки</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+          <div style="margin-top:24px;display:flex;justify-content:space-between;font-size:10.5pt;">
+            <div>Ответственный ИТ-инженер: ___________________</div>
+            <div>Подпись / М.П.: ___________________</div>
+          </div>
+        </div>
+      `;
+      window.print();
+    }
+
+    /* =========================================================================
+       N. STAFF TAB 4: INCOMING SERVICE MEMOS ("СЛУЖЕБНЫЕ ЗАПИСКИ")
+       ========================================================================= */
+    function renderMemosTab(container) {
+      const memosHtml = appData.memos.length
+        ? appData.memos.map(m => {
+            const isOpen = m.status === 'open';
+            return `
+              <div class="card" style="border-left:5px solid ${isOpen ? 'var(--rose)' : 'var(--emerald)'};">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+                  <div>
+                    <div style="font-size:16px;font-weight:900;">📨 Служебная записка № ${escapeHtml(m.memoNumber)}</div>
+                    <div style="font-size:12px;color:var(--text-muted);">${escapeHtml(m.createdAt)} • Отправитель: <b>${escapeHtml(m.sender)}</b></div>
+                  </div>
+                  <span class="badge ${isOpen ? 'badge-broken' : 'badge-working'}">
+                    ${isOpen ? '🔴 Требует ремонта' : '🟢 Ремонт выполнен'}
+                  </span>
+                </div>
+
+                <div style="background:#f8fafc;border:1px solid var(--border-light);border-radius:12px;padding:12px;margin-bottom:12px;font-size:13.5px;">
+                  <div><b>Компьютер:</b> ${escapeHtml(m.pcName)} (<span style="font-family:monospace;font-weight:800;">${escapeHtml(m.pcId)}</span>)</div>
+                  <div><b>Локация:</b> 📍 ${escapeHtml(m.location)}</div>
+                  <div><b>Конфигурация:</b> ${escapeHtml(m.specsSummary)}</div>
+                  <div style="margin-top:8px;padding-top:8px;border-top:1px dashed var(--border-med);color:${isOpen ? 'var(--rose)' : 'var(--text-main)'};">
+                    <b>Проблема:</b> ${escapeHtml(m.description)}
+                  </div>
+                </div>
+
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                  <button type="button" class="btn btn-outline btn-sm" onclick="printMemoDocument('${escapeHtml(m.memoNumber)}')">
+                    🖨️ Печать записки
+                  </button>
+                  ${isOpen ? `
+                    <button type="button" class="btn btn-emerald btn-sm" onclick="resolveServiceMemo('${escapeHtml(m.memoNumber)}')">
+                      ✅ Закрыть ремонт (выполнено)
+                    </button>
+                  ` : ''}
+                </div>
+              </div>
+            `;
+          }).join('')
+        : `<div class="card" style="text-align:center;color:var(--text-muted);padding:28px;">Входящих служебных записок пока нет.</div>`;
+
+      container.innerHTML = `
+        <div class="section-hdr">
+          <div>
+            <h1 style="font-size:20px;font-weight:900;">📨 Служебные записки от пользователей</h1>
+            <div style="font-size:12.5px;color:var(--text-secondary);">Заявки автоматически формируются при сканировании QR-кода студентами</div>
+          </div>
+        </div>
+        ${memosHtml}
+      `;
+    }
+
+    function resolveServiceMemo(memoNumber) {
+      const memo = appData.memos.find(m => m.memoNumber === memoNumber);
+      if (!memo) return;
+      memo.status = 'resolved';
+
+      const pc = appData.pcs.find(p => p.id === memo.pcId);
+      if (pc) {
+        pc.status = 'working';
+        pc.logs.unshift({
+          date: formatToday(),
+          type: 'Ремонт / Жөндеу',
+          desc: `Выполнен ремонт по записке ${memo.memoNumber}: ${memo.description}`,
+          master: 'ИТ-инженер'
+        });
+      }
+
+      saveState();
+      renderAll();
+      showToast(`✅ Записка ${memoNumber} закрыта, статус ПК восстановлен`);
+    }
+
+    function printMemoDocument(memoNumber) {
+      const memo = appData.memos.find(m => m.memoNumber === memoNumber);
+      if (!memo) return;
+      const printArea = document.getElementById('print-area');
+      printArea.innerHTML = `
+        <div style="font-family:'Times New Roman',serif;max-width:170mm;margin:0 auto;padding:10mm;border:1.5px solid #000;">
+          <div style="text-align:right;font-size:12pt;margin-bottom:16px;">
+            Начальнику ИТ-департамента<br/>
+            Университетского кампуса<br/>
+            от: ${escapeHtml(memo.sender)}
+          </div>
+          <h2 style="text-align:center;font-size:14pt;margin-bottom:4px;">СЛУЖЕБНАЯ ЗАПИСКА № ${escapeHtml(memo.memoNumber)}</h2>
+          <div style="text-align:center;font-size:11pt;margin-bottom:18px;">от ${escapeHtml(memo.createdAt)}</div>
+          <p style="font-size:12pt;line-height:1.55;margin-bottom:12px;">
+            Настоящим сообщаю о выявленной технической неисправности компьютерного оборудования, зарегистрированного в системе цифрового учёта <b>OpsQR</b>:
+          </p>
+          <table class="print-act-table" style="margin-bottom:16px;">
+            <tr><th style="width:35%;">Инвентарный номер</th><td style="font-family:monospace;font-weight:bold;">${escapeHtml(memo.pcId)}</td></tr>
+            <tr><th>Наименование</th><td>${escapeHtml(memo.pcName)}</td></tr>
+            <tr><th>Корпус / Этаж / Кабинет</th><td>${escapeHtml(memo.location)}</td></tr>
+            <tr><th>Конфигурация ПК</th><td>${escapeHtml(memo.specsSummary)}</td></tr>
+            <tr><th>Описание неисправности</th><td><b>${escapeHtml(memo.description)}</b></td></tr>
+          </table>
+          <p style="font-size:12pt;line-height:1.55;margin-bottom:28px;">
+            Прошу направить дежурного ИТ-инженера для проведения диагностики, устранения неисправности и внесения отметки в электронный паспорт устройства.
+          </p>
+          <div style="display:flex;justify-content:space-between;font-size:12pt;">
+            <div>Заявитель: ${escapeHtml(memo.sender)}</div>
+            <div>Исполнитель: _________________</div>
+          </div>
+        </div>
+      `;
+      window.print();
+    }
+
+    /* =========================================================================
+       O. MOBILE APP (PWA) SUPPORT FOR IPHONE (iOS) & ANDROID + OFFLINE SW
+       ========================================================================= */
+    let deferredInstallPrompt = null;
+    let generatedIcon512Url = null;
+
+    function isStandaloneApp() {
+      return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    }
+
+    function triggerHaptic() {
+      try {
+        if (navigator.vibrate) navigator.vibrate(14);
+      } catch (e) {}
+    }
+
+    function createAppIconBlob(size) {
+      return new Promise(resolve => {
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+
+        const grad = ctx.createLinearGradient(0, 0, size, size);
+        grad.addColorStop(0, '#2563eb');
+        grad.addColorStop(1, '#0f172a');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, size, size);
+
+        const pad = Math.round(size * 0.16);
+        const box = size - pad * 2;
+        const r = Math.round(size * 0.14);
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.moveTo(pad + r, pad);
+        ctx.arcTo(pad + box, pad, pad + box, pad + box, r);
+        ctx.arcTo(pad + box, pad + box, pad, pad + box, r);
+        ctx.arcTo(pad, pad + box, pad, pad, r);
+        ctx.arcTo(pad, pad, pad + box, pad, r);
+        ctx.closePath();
+        ctx.fill();
+
+        const inner = Math.round(box * 0.16);
+        const cell = Math.round((box - inner * 2) / 7);
+        const ox = pad + inner;
+        const oy = pad + inner;
+        ctx.fillStyle = '#0f172a';
+
+        const drawFinder = (gx, gy) => {
+          ctx.fillRect(ox + gx * cell, oy + gy * cell, cell * 3, cell * 3);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(ox + (gx + 0.6) * cell, oy + (gy + 0.6) * cell, cell * 1.8, cell * 1.8);
+          ctx.fillStyle = '#0f172a';
+          ctx.fillRect(ox + (gx + 1) * cell, oy + (gy + 1) * cell, cell, cell);
+        };
+        drawFinder(0, 0);
+        drawFinder(4, 0);
+        drawFinder(0, 4);
+
+        ctx.fillStyle = '#2563eb';
+        ctx.fillRect(ox + 4 * cell, oy + 4 * cell, cell * 1.3, cell * 1.3);
+        ctx.fillRect(ox + 5.7 * cell, oy + 5.7 * cell, cell * 1.3, cell * 1.3);
+
+        canvas.toBlob(blob => resolve(blob), 'image/png');
+      });
+    }
+
+    async function initPwaSupport() {
+      try {
+        const [blob192, blob512] = await Promise.all([
+          createAppIconBlob(192),
+          createAppIconBlob(512)
+        ]);
+        const url192 = URL.createObjectURL(blob192);
+        const url512 = URL.createObjectURL(blob512);
+        generatedIcon512Url = url512;
+
+        const appleIcon = document.getElementById('dynamic-apple-icon');
+        const favIcon = document.getElementById('dynamic-favicon');
+        if (appleIcon) appleIcon.href = url512;
+        if (favIcon) favIcon.href = url192;
+
+        const manifestObj = {
+          name: 'OpsQR — Электронный паспорт ПК',
+          short_name: 'OpsQR',
+          description: 'Автономная система QR-паспортов компьютеров, служебных записок и инвентаризации',
+          start_url: window.location.href,
+          display: 'standalone',
+          orientation: 'portrait',
+          background_color: '#0f172a',
+          theme_color: '#0f172a',
+          icons: [
+            { src: url192, sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+            { src: url512, sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+          ]
+        };
+
+        const manifestBlob = new Blob([JSON.stringify(manifestObj)], { type: 'application/manifest+json' });
+        const manifestLink = document.getElementById('dynamic-manifest');
+        if (manifestLink) manifestLink.href = URL.createObjectURL(manifestBlob);
+      } catch (e) {}
+
+      window.addEventListener('beforeinstallprompt', e => {
+        e.preventDefault();
+        deferredInstallPrompt = e;
+        const box = document.getElementById('pwa-native-install-box');
+        if (box) box.style.display = 'block';
+      });
+
+      if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+        try {
+          const swCode = `
+            const CACHE_NAME = 'opsqr-offline-v2';
+            self.addEventListener('install', ev => {
+              self.skipWaiting();
+              ev.waitUntil(
+                caches.open(CACHE_NAME).then(cache => cache.addAll([self.location.href]).catch(() => {}))
+              );
+            });
+            self.addEventListener('activate', ev => {
+              ev.waitUntil(self.clients.claim());
+            });
+            self.addEventListener('fetch', ev => {
+              if (ev.request.method !== 'GET') return;
+              ev.respondWith(
+                caches.match(ev.request).then(cached => {
+                  return cached || fetch(ev.request).then(resp => {
+                    const copy = resp.clone();
+                    caches.open(CACHE_NAME).then(c => c.put(ev.request, copy)).catch(() => {});
+                    return resp;
+                  }).catch(() => cached);
+                })
+              );
+            });
+          `;
+          const swBlob = new Blob([swCode], { type: 'application/javascript' });
+          navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
+        } catch (e) {}
+      }
+    }
+
+    async function triggerNativeAndroidInstall() {
+      if (!deferredInstallPrompt) return;
+      deferredInstallPrompt.prompt();
+      const choice = await deferredInstallPrompt.userChoice;
+      if (choice && choice.outcome === 'accepted') {
+        showToast('✅ OpsQR установлен на главный экран!');
+        closeModal('modal-install-app');
+      }
+      deferredInstallPrompt = null;
+    }
+
+    function openInstallAppModal() {
+      triggerHaptic();
+      const iconPrev = document.getElementById('pwa-icon-preview');
+      if (iconPrev && generatedIcon512Url) {
+        iconPrev.innerHTML = `<img src="${generatedIcon512Url}" alt="OpsQR" style="width:100%;height:100%;object-fit:cover;" />`;
+      }
+
+      const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      const isStandalone = isStandaloneApp();
+      const container = document.getElementById('pwa-install-instructions');
+
+      if (isStandalone) {
+        container.innerHTML = `
+          <div class="pwa-step-card" style="background:var(--emerald-soft);border-color:var(--emerald-border);">
+            <div class="pwa-step-title" style="color:var(--emerald);">✅ Приложение OpsQR уже установлено!</div>
+            <div style="font-size:13px;color:var(--text-secondary);">
+              Вы открыли OpsQR в полноэкранном режиме приложения. Все данные сохраняются в памяти телефона и работают без интернета.
+            </div>
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <div class="pwa-step-card" style="${isIos ? 'border-color:var(--royal-bright);background:var(--royal-soft);' : ''}">
+            <div class="pwa-step-title">🍎 Для iPhone / iPad (Safari)</div>
+            <ol style="font-size:13px;color:var(--text-secondary);padding-left:18px;display:grid;gap:4px;">
+              <li>Откройте эту страницу в браузере <b>Safari</b>.</li>
+              <li>Нажмите кнопку <b>«Поделиться» (квадрат со стрелкой вверх ⬆️)</b> на нижней панели.</li>
+              <li>Пролистайте вниз и выберите <b>«На экран „Домой“» (Add to Home Screen)</b> → нажмите <b>«Добавить»</b>.</li>
+            </ol>
+          </div>
+
+          <div class="pwa-step-card" style="${!isIos ? 'border-color:var(--royal-bright);background:var(--royal-soft);' : ''}">
+            <div class="pwa-step-title">🤖 Для Android (Google Chrome)</div>
+            <ol style="font-size:13px;color:var(--text-secondary);padding-left:18px;display:grid;gap:4px;">
+              <li>Откройте страницу в браузере <b>Chrome</b> (или нажмите зелёную кнопку установки выше, если она появилась).</li>
+              <li>Нажмите на меню <b>⋮ (три точки)</b> в правом верхнем углу.</li>
+              <li>Выберите <b>«Установить приложение»</b> или <b>«Добавить на гл. экран»</b>.</li>
+            </ol>
+          </div>
+
+          <div class="pwa-step-card" style="margin-bottom:0;">
+            <div class="pwa-step-title">✈️ Работа полностью без интернета</div>
+            <div style="font-size:12.5px;color:var(--text-secondary);">
+              После установки на рабочий стол <b>OpsQR</b> запускается без адресной строки браузера как отдельное приложение. Реестр ПК, сканер QR, служебные записки и инвентаризация работают в авиарежиме.
+            </div>
+          </div>
+        `;
+      }
+
+      openModal('modal-install-app');
+    }
+
+    /* =========================================================================
+       P. INITIALIZATION ON WINDOW LOAD
+       ========================================================================= */
+    window.addEventListener('DOMContentLoaded', () => {
+      initPwaSupport();
+      renderAll();
+    });
+  </script>
+
+  <!-- Invisible Bottom-Left Stealth Trigger for Presentation Demo Mode -->
+  <button
+    id="stealth-demo-trigger"
+    type="button"
+    aria-label="Demo Mode Toggle"
+    onclick="toggleStealthDemo()"
+  ></button>
+</body>
+</html>
